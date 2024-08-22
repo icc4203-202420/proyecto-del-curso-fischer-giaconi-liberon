@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       end
       
       resources :reviews, only: [:index, :show, :create, :update, :destroy]
+      resources :events
     end
   end
 
