@@ -25,11 +25,16 @@ Rails.application.routes.draw do
       resources :bars
       resources :beers
       resources :users do
+        member do
+          get :friendships
+          post :friendships, action: :create_friendship
+        end
         resources :reviews, only: [:index]
+        resources :friendships, only: [:index, :create]
       end
-      
-      resources :reviews, only: [:index, :show, :create, :update, :destroy]
       resources :events
+
+      resources :reviews, only: [:index, :show, :create, :update, :destroy]
     end
   end
 
