@@ -7,7 +7,7 @@ class API::V1::EventsController < ApplicationController
     before_action :set_event, only: [:show, :update, :destroy]
 
     def show
-        if @event.image.attached?
+        if @event.flyer.attached?
             render json: @event.as_json.merge({
                 image_url: url_for(@event.image),
                 thumbnail_url: url_for(@event.thumbnail)}),
@@ -18,7 +18,7 @@ class API::V1::EventsController < ApplicationController
     end
 
     def create
-        @event = Event.new(params.except(:image_base64))
+        @event = Event.new(event_params.except(:image_base64))
         handle_image_attachment if event_params[:image_base64]
 
         if @event.save
@@ -39,8 +39,11 @@ class API::V1::EventsController < ApplicationController
     end
 
     def destroy
-        @event.destroy
-        head :no_content
+        if @event.destroy
+            render json: { message: 'Event successfully deleted.' }, status: :no_content
+        else
+            render json: @event.errors, status: :unprocessable_entity
+        end
     end
 
 
@@ -51,12 +54,12 @@ class API::V1::EventsController < ApplicationController
     end
 
     def event_params
-        params.require(:event).permit(:name,:description,:bar,:image_base64)
+        params.require(:event).permit(:name, :description, :bar_id, :image_base64)
     end
 
     def handle_image_attachment
         decode_image = decode_image(event_params[:image_base64])
-        @event.image.attach(io: decoded_image[:io],
+        @event.flyer.attach(io: decoded_image[:io],
             filename: decode_image[:filename],
             content_type: decoded_image[:content_type]
         )
