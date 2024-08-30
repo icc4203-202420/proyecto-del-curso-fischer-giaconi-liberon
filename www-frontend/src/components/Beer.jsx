@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography, Container, List, ListItem, ListItemText, CircularProgress, Grid } from '@mui/material';
+import SearchBar from './SearchBar';
+import { useNavigate } from 'react-router-dom';
 
 const Beers = () => {
     const [beers, setBeers] = useState(null);
+    const [filteredBeers, setFilteredBeers] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchBeers = async () => {
@@ -14,6 +18,7 @@ const Beers = () => {
 
                 if (data.beers) {
                     setBeers(data.beers);
+                    setFilteredBeers(data.beers); // Set initial filtered beers
                 }
             } catch (error) {
                 console.error("Error fetching beers:", error);
@@ -23,12 +28,22 @@ const Beers = () => {
         fetchBeers();
     }, []);
 
+    const handlePaperClick = (beerId) => {
+        navigate(`/bars/${beerId}/events`);
+    };
+
     return (
+        
         <Container style={{ paddingTop: '20px', paddingBottom: '20px' }}>
-            {beers ? (
+            <SearchBar data={beers} setFilteredData={setFilteredBeers} placeholder="Search beers..." />
+            {filteredBeers ? (
                 <List>
-                    {beers.map((beer) => (
-                        <ListItem key={beer.id} style={{ backgroundColor: '#3A2B2A', color: '#FFFFFF', marginBottom: '8px', paddingLeft: '25px' }}>
+                    {filteredBeers.map((beer) => (
+                        <ListItem
+                            key={beer.id}
+                            style={{ backgroundColor: '#3A2B2A', color: '#FFFFFF', marginBottom: '8px', paddingLeft: '25px' }}
+                            onClick={() => handlePaperClick(beer.id)}
+                        >
                             <ListItemText
                                 primary={
                                     <Typography variant="h6" style={{ color: '#FFFFFF' }}>
