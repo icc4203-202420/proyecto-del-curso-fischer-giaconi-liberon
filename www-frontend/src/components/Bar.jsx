@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Typography, Container, Card, CardContent,Paper, Grid, CircularProgress, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Typography, Container, Paper, CircularProgress, List, ListItem, ListItemText, Divider, ListItemAvatar, Avatar, Grid } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Bars = () => {
     const [bars, setBars] = useState(null);
-    
+    const navigate = useNavigate(); // Hook to programmatically navigate
+
     useEffect(() => {
         const fetchBars = async () => { 
             try {
@@ -21,50 +22,55 @@ const Bars = () => {
             }
         };
         fetchBars();
-    }, [])
+    }, []);
+
+    const handlePaperClick = (barId) => {
+        navigate(`/bars/${barId}/events`); // Redirect to the events page for the bar
+    };
 
     return (
-        <Container>
-            <Typography variant="h2" gutterBottom align="center">
-                Lista de Bares
-            </Typography>
+        <Container style={{ paddingTop: '20px', paddingBottom: '20px' }}>
             {bars ? (
-                <Grid container spacing={2}>
+                <List>
                     {bars.map((bar) => (
-                        <Grid item xs={12} sm={6} md={4} key={bar.id}>
-                            <Paper elevation={3} style={{ padding: '16px', textAlign: 'center' }}>
-                                <Typography variant="h6">
-                                    {bar.name} | {bar.id}
-                                </Typography>
-                                <Typography variant="body2" color="textPrimary">
-                                        Address ID: {bar.address_id} 
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                        Latitude: {bar.latitude}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                        Longitude: {bar.longitude}
-                                </Typography>
-                                <Button
-                                    component={Link}
-                                    to={`/bars/${bar.id}/events`}
-                                    variant="contained"
-                                    color="primary"
-                                    style={{ marginTop: '16px' }}
+                        <div key={bar.id}>
+                            <ListItem alignItems="flex-start">
+                                <Paper
+                                    elevation={3}
+                                    style={{ padding: '16px', width: '100%', backgroundColor: '#3A2B2A', color: '#FFFFFF', cursor: 'pointer' }}
+                                    onClick={() => handlePaperClick(bar.id)}
                                 >
-                                    Ver Eventos
-                                </Button>
-                            </Paper>
-                        </Grid>
+                                    <Grid container spacing={2} alignItems="center">
+                                        <Grid item>
+                                            <Avatar
+                                                variant="rounded"
+                                                src={`path/to/your/image/${bar.id}.jpg`} // Replace with actual image path
+                                                alt={bar.name}
+                                                style={{ width: 80, height: 80 }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs>
+                                            <Typography variant="h6" style={{ marginBottom: '10px' }}>
+                                                {bar.name}
+                                            </Typography>
+                                            <ListItemText
+                                                primary={`Dirección ID: ${bar.address_id}`}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Paper>
+                            </ListItem>
+                            <Divider />
+                        </div>
                     ))}
-                </Grid>
+                </List>
             ) : (
-                <Grid container justifyContent="center">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
                     <CircularProgress />
-                </Grid>
+                </div>
             )}
         </Container>
     );
 };
-    
+
 export default Bars;
