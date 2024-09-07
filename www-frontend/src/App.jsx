@@ -6,6 +6,7 @@ import Home from './components/Home';
 import Explore from './components/Explore'; // Import the Explore component
 import UserSearch from './components/UserSearch';
 import Events from './components/Events';
+import BeerDetail from './components/BeerDetail'; // Import the BeerDetail component
 
 function App() {
   return (
@@ -27,7 +28,6 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             flexGrow: 1,
-            //justifyContent: 'center',
             alignItems: 'center',
             padding: 3,
           }}
@@ -37,6 +37,7 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/usersearch" element={<UserSearch />} />
             <Route path="/bars/:bar_id/events" element={<Events />} />
+            <Route path="/beers/:id" element={<BeerDetail />} />
           </Routes>
         </Container>
       </Box>

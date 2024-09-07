@@ -24,12 +24,15 @@ class API::V1::BeersController < ApplicationController
     if @beer.image.attached?
       render json: @beer.as_json.merge({ 
         image_url: url_for(@beer.image), 
-        thumbnail_url: url_for(@beer.thumbnail)}),
-        status: :ok
+        thumbnail_url: url_for(@beer.thumbnail),
+        reviews: @beer.reviews.as_json(include: { user: { only: [:first_name, :last_name] } }) 
+      }), status: :ok
     else
-      render json: { beer: @beer.as_json }, status: :ok
-    end 
-  end
+      render json: { beer: @beer.as_json.merge(
+        reviews: @beer.reviews.as_json(include: { user: { only: [:first_name, :last_name] } })
+      ) }, status: :ok
+    end
+  end  
 
   # POST /beers
   def create
