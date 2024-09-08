@@ -1,7 +1,7 @@
 class API::V1::UsersController < ApplicationController
   respond_to :json
   include Authenticable
-  before_action :verify_jwt_token, only: [:create, :update]
+  before_action :verify_jwt_token, only: [:create, :update, :friendships, :create_friendship]
   before_action :set_user, only: [:show, :update, :friendships, :create_friendship]
 
   def index

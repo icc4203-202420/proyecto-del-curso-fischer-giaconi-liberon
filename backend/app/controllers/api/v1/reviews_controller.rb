@@ -3,6 +3,7 @@ class API::V1::ReviewsController < ApplicationController
   before_action :set_beer, only: [:index, :create]
   before_action :set_user, only: [:index, :create]
   before_action :set_review, only: [:show, :update, :destroy]
+  before_action :verify_jwt_token, only: [:create, :update, :destroy]
 
   def index
     @reviews = Review.where(beer: @beer)
@@ -19,6 +20,7 @@ class API::V1::ReviewsController < ApplicationController
 
   def create
     @review = @user.reviews.build(id: params[:id], rating: params[:review][:rating], text: params[:review][:text], beer_id: @beer.id)
+    @review.user = current_user
     if @review.save
       render json: @review, status: :created, location: api_v1_review_url(@review)
     else
