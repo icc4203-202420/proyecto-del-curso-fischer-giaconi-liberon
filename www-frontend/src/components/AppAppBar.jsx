@@ -4,9 +4,7 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
-import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -31,44 +29,54 @@ export default function AppAppBar() {
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-            <Box>
-              <Button
-                component={Link}
-                to="/"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Home
-              </Button>
-              <Button
-                component={Link}
-                to="/explore"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Explore
-              </Button>
-              <Button
-                component={Link}
-                to="/usersearch"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Users
-              </Button>
-            </Box>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+            <Button
+              component={Link}
+              to="/"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Home
+            </Button>
+            <Button
+              component={Link}
+              to="/explore"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Explore
+            </Button>
+            <Button
+              component={Link}
+              to="/usersearch"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Users
+            </Button>
           </Box>
-          <Box
-            sx={{
-              display: { xs: 'none', md: 'flex' },
-              gap: 1,
-              alignItems: 'center',
-            }}
-          >
+          <Box>
+            <Button
+              component={Link}
+              to="/login"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Log In
+            </Button>
+            <Button
+              component={Link}
+              to="/signup"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Sign Up
+            </Button>
           </Box>
         </StyledToolbar>
       </Container>
