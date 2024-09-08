@@ -4,14 +4,16 @@ import axios from 'axios';
 import { Typography, Container, CircularProgress } from '@mui/material';
 
 const BeerDetail = () => {
-    const { beerId } = useParams(); // Obtén el ID de la cerveza de la URL
+    console.log(useParams());
+    const { id } = useParams(); // Obtén el ID de la cerveza de la URL
     const [beer, setBeer] = useState(null);
     const [loading, setLoading] = useState(true);
+    console.log(id)
 
     useEffect(() => {
         const fetchBeerDetails = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${beerId}`);
+                const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
                 setBeer(response.data.beer); // Asegúrate de que `response.data.beer` sea el camino correcto
             } catch (error) {
                 console.error("Error fetching beer details:", error);
@@ -21,7 +23,7 @@ const BeerDetail = () => {
         };
 
         fetchBeerDetails();
-    }, [beerId]);
+    }, [id]);
 
     if (loading) {
         return (

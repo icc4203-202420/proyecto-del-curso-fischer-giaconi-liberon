@@ -3,10 +3,12 @@ class API::V1::SessionsController < Devise::SessionsController
   respond_to :json
   private
   def respond_with(current_user, _opts = {})
+    token = encode_token({ sub: resource.id })
     render json: {
       status: { 
         code: 200, message: 'Logged in successfully.',
         data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] }
+        token: token
       }
     }, status: :ok
   end
