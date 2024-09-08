@@ -25,7 +25,9 @@ Rails.application.routes.draw do
       resources :bars do 
         resources :events
       end
-      resources :beers
+      resources :beers do
+        resources :reviews
+      end
       resources :users do
         member do
           get :friendships
