@@ -94,10 +94,12 @@ const BeerDetail = () => {
     return (
         <Container>
             <Typography variant="h4">{beer.name}</Typography>
+            <Typography variant="h4">Brewer: {beer.brewer}</Typography>
             <Typography variant="h6">Yeast: {beer.yeast}</Typography>
             <Typography variant="body1">Malts: {beer.malts}</Typography>
             <Typography variant="body1">IBU: {beer.ibu}</Typography>
             <Typography variant="body1">Alcohol level: {beer.alcohol}</Typography>
+            <Typography variant="body1">Avg rating: {beer.avg_rating}</Typography>
 
             {/* Form and Alert */}
             {localStorage.getItem('token') ? (
@@ -143,7 +145,7 @@ const BeerDetail = () => {
             {reviews.length > 0 ? (
                 reviews.map(review => (
                     <div key={review.id}>
-                        <Typography variant="body1"><strong>{review.user.name}:</strong> {review.text} (Rating: {review.rating})</Typography>
+                        <Typography variant="body1"><strong>{review.user_id}:</strong> {review.text} (Rating: {review.rating})</Typography>
                     </div>
                 ))
             ) : (
