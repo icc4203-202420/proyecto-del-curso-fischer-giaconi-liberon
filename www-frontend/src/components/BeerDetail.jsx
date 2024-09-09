@@ -9,7 +9,6 @@ const BeerDetail = () => {
     const [loading, setLoading] = useState(true);
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState({ text: '', rating: 5 }); // Initialize rating as a number
-    const [user, setUser] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -19,8 +18,6 @@ const BeerDetail = () => {
                 const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
                 setBeer(response.data.beer);
                 setReviews(response.data.reviews);
-                const userResponse = await axios.get('/api/v1/users/current');
-                setUser(userResponse.data.user);
             } catch (error) {
                 console.error("Error fetching beer details:", error);
             } finally {
@@ -55,9 +52,9 @@ const BeerDetail = () => {
         }
 
         try {
-            const aux_token = localStorage.getItem('token').strip();
-            // const token = aux_token.replace(/"/g, '');s
-            console.log(aux_token)
+            const aux_token = localStorage.getItem('token');
+            const token = aux_token.trim()
+            console.log(token)
             console.log(user.id)
             await axios.post(`http://127.0.0.1:3001/api/v1/beers/${id}/reviews`, {
                 review: {
@@ -66,7 +63,7 @@ const BeerDetail = () => {
                 },
                 user_id: user.id
             }, {
-                headers: { 'Authorization': aux_token }
+                headers: { 'Authorization': token.trim() }
             });
             setSuccess('Review submitted successfully!');
             setNewReview({ text: '', rating: 5 }); // Reset rating to default
