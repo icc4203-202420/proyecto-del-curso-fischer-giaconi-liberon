@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Typography, Container, CircularProgress, TextField, Button, Snackbar, Card, CardContent, Alert } from '@mui/material';
+import { Typography, Container, CircularProgress, TextField, Button, Snackbar, Card, CardContent, Alert, Box, Slider } from '@mui/material';
 
 const BeerDetail = () => {
     const { id } = useParams();
     const [beer, setBeer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [reviews, setReviews] = useState([]);
-    const [newReview, setNewReview] = useState({ text: '', rating: '' });
-    const [user, setUser] = useState(null); // Assume you have a way to fetch the current user
+    const [newReview, setNewReview] = useState({ text: '', rating: 5 }); // Initialize rating as a number
+    const [user, setUser] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -19,8 +19,7 @@ const BeerDetail = () => {
                 const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
                 setBeer(response.data.beer);
                 setReviews(response.data.reviews);
-                // Fetch the current user to check if they are logged in
-                const userResponse = await axios.get('/api/v1/users/current'); // Adjust the endpoint as needed
+                const userResponse = await axios.get('/api/v1/users/current');
                 setUser(userResponse.data.user);
             } catch (error) {
                 console.error("Error fetching beer details:", error);
@@ -33,31 +32,38 @@ const BeerDetail = () => {
     }, [id]);
 
     const handleReviewChange = (e) => {
-        setNewReview({
-            ...newReview,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setNewReview(prevState => ({
+            ...prevState,
+            [name]: name === 'rating' ? Number(value) : value
+        }));
+    };
+
+    const handleSliderChange = (event, newValue) => {
+        setNewReview(prevState => ({
+            ...prevState,
+            rating: newValue
+        }));
     };
 
     const handleSubmitReview = async () => {
-        if (!user) {
+        if (!localStorage.getItem('user')) {
             setError('You must be logged in to leave a review.');
             return;
         }
 
         try {
-            await axios.post(`http://127.0.0.1:3001/api/v1/reviews`, {
+            await axios.post(`http://127.0.0.1:3001/api/v1/beers/${id}/reviews`, {
                 review: {
                     text: newReview.text,
                     rating: newReview.rating,
-                    beer_id: id,
-                }
+                },
+                user_id: localStorage.getItem('user').id
             }, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             setSuccess('Review submitted successfully!');
-            setNewReview({ text: '', rating: '' });
-            // Refresh reviews
+            setNewReview({ text: '', rating: 5 }); // Reset rating to default
             const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
             setReviews(response.data.reviews);
         } catch (error) {
@@ -91,7 +97,7 @@ const BeerDetail = () => {
             <Typography variant="body1">Alcohol level: {beer.alcohol}</Typography>
 
             {/* Form and Alert */}
-            {user ? (
+            {localStorage.getItem('token') ? (
                 <div>
                     <Typography variant="h6" gutterBottom>Write a Review</Typography>
                     <TextField
@@ -104,16 +110,17 @@ const BeerDetail = () => {
                         rows={4}
                         sx={{ mb: 2 }}
                     />
-                    <TextField
-                        label="Rating (1-5)"
-                        name="rating"
-                        type="number"
-                        value={newReview.rating}
-                        onChange={handleReviewChange}
-                        fullWidth
-                        inputProps={{ min: 1, max: 5 }}
-                        sx={{ mb: 2 }}
-                    />
+                    <Box sx={{ width: 300 }}>
+                        <Slider
+                            value={newReview.rating}
+                            onChange={handleSliderChange}
+                            min={1}
+                            max={5}
+                            step={0.1}
+                            aria-label="Default"
+                            valueLabelDisplay="auto"
+                        />
+                    </Box>
                     <Button onClick={handleSubmitReview} variant="contained" color="primary">
                         Submit Review
                     </Button>

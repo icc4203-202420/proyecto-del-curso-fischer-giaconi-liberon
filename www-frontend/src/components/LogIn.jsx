@@ -46,6 +46,8 @@ const LogIn = ({ onLogin }) => {
     try {
       const response = await axios.post('http://127.0.0.1:3001/api/v1/login', { user: formData });
       const token = response.data.status.token; 
+      console.log(response.data.status.data.user)
+      localStorage.setItem('user', JSON.stringify(response.data.status.data.user))
       if (token) {
         onLogin(token); 
         setSuccessMessage('Login successful!');

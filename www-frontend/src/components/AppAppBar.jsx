@@ -21,7 +21,20 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
+// Función para verificar si el usuario está logueado
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token'); // O sessionStorage si prefieres
+};
+
 export default function AppAppBar() {
+  const loggedIn = isAuthenticated(); // Determina si el usuario está logueado
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+    localStorage.removeItem('user');
+    window.location.reload(); // Refresca la página o redirige a la página de inicio
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -59,24 +72,39 @@ export default function AppAppBar() {
             </Button>
           </Box>
           <Box>
-            <Button
-              component={Link}
-              to="/login"
-              variant="text"
-              size="small"
-              sx={{ color: 'white', textTransform: 'none' }}
-            >
-              Log In
-            </Button>
-            <Button
-              component={Link}
-              to="/signup"
-              variant="text"
-              size="small"
-              sx={{ color: 'white', textTransform: 'none' }}
-            >
-              Sign Up
-            </Button>
+            {loggedIn ? (
+              // Si está logueado, mostrar "Logout"
+              <Button
+                onClick={handleLogout}
+                variant="text"
+                size="small"
+                sx={{ color: 'white', textTransform: 'none' }}
+              >
+                Log Out
+              </Button>
+            ) : (
+              // Si no está logueado, mostrar "Login" y "Sign Up"
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="text"
+                  size="small"
+                  sx={{ color: 'white', textTransform: 'none' }}
+                >
+                  Log In
+                </Button>
+                <Button
+                  component={Link}
+                  to="/signup"
+                  variant="text"
+                  size="small"
+                  sx={{ color: 'white', textTransform: 'none' }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Box>
         </StyledToolbar>
       </Container>

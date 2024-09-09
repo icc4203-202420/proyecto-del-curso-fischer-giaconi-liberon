@@ -59,4 +59,8 @@ class API::V1::ReviewsController < ApplicationController
   def review_params
     params.require(:review).permit(:id, :text, :rating, :beer_id)
   end
+  def verify_jwt_token
+    authenticate_user!
+    head :unauthorized unless current_user
+  end  
 end

@@ -30,15 +30,16 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     handle: '',
+    password: '',
+    password_confirmation: '',
     line1: '',
     line2: '',
     city: '',
-    countryId: '',
-    password: ''
+    country_id: '',
   });
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -51,7 +52,26 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/signup', formData);
+      // Organizar los datos en el formato requerido
+      const postData = {
+        user: {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          handle: formData.handle,
+          password: formData.password,
+          password_confirmation: formData.password_confirmation,
+          address_attributes: {
+            line1: formData.line1,
+            line2: formData.line2,
+            city: formData.city,
+            country_id: formData.country_id,
+          },
+        },
+      };
+
+      // Enviar la solicitud POST
+      const response = await axios.post('http://127.0.0.1:3001/api/v1/signup', postData);
       setSuccessMessage('Registration successful!');
       setErrorMessage('');
     } catch (error) {
@@ -77,16 +97,16 @@ const SignUp = () => {
           >
             <TextField
               label="First Name"
-              name="firstName"
-              value={formData.firstName}
+              name="first_name"
+              value={formData.first_name}
               onChange={handleChange}
               variant="outlined"
               required
             />
             <TextField
               label="Last Name"
-              name="lastName"
-              value={formData.lastName}
+              name="last_name"
+              value={formData.last_name}
               onChange={handleChange}
               variant="outlined"
               required
@@ -118,6 +138,15 @@ const SignUp = () => {
               required
             />
             <TextField
+              label="Confirm Password"
+              name="password_confirmation"
+              type="password"
+              value={formData.password_confirmation}
+              onChange={handleChange}
+              variant="outlined"
+              required
+            />
+            <TextField
               label="Address Line 1"
               name="line1"
               value={formData.line1}
@@ -140,9 +169,9 @@ const SignUp = () => {
             />
             <TextField
               label="Country ID"
-              name="countryId"
+              name="country_id"
               type="number"
-              value={formData.countryId}
+              value={formData.country_id}
               onChange={handleChange}
               variant="outlined"
             />
