@@ -2,9 +2,6 @@ class API::V1::SessionsController < Devise::SessionsController
   include ::RackSessionsFix
   respond_to :json
   private
-  def encode_token(payload)
-    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key, 'HS256')
-  end
   def respond_with(current_user, _opts = {})
     token = encode_token({ sub: resource.id })
     render json: {
