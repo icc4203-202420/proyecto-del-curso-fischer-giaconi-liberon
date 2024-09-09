@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
+      get 'users/current', to: 'users#current'
       resources :bars do 
         resources :events
       end

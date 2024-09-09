@@ -47,20 +47,26 @@ const BeerDetail = () => {
     };
 
     const handleSubmitReview = async () => {
-        if (!localStorage.getItem('user')) {
+        const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        
+        if (!user) {
             setError('You must be logged in to leave a review.');
             return;
         }
 
         try {
+            const aux_token = localStorage.getItem('token').strip();
+            // const token = aux_token.replace(/"/g, '');s
+            console.log(aux_token)
+            console.log(user.id)
             await axios.post(`http://127.0.0.1:3001/api/v1/beers/${id}/reviews`, {
                 review: {
                     text: newReview.text,
-                    rating: newReview.rating,
+                    rating: newReview.rating
                 },
-                user_id: localStorage.getItem('user').id
+                user_id: user.id
             }, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': aux_token }
             });
             setSuccess('Review submitted successfully!');
             setNewReview({ text: '', rating: 5 }); // Reset rating to default

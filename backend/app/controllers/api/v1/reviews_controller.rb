@@ -49,6 +49,7 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def set_user
+    puts(params)
     @user = User.find(params[:user_id]) 
   end
 

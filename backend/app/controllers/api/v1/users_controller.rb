@@ -21,6 +21,10 @@ class API::V1::UsersController < ApplicationController
     end
   end
 
+  def current
+    render json: current_user
+  end
+
   def update
     #byebug
     if @user.update(user_params)
