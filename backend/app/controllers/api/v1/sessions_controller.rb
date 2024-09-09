@@ -2,11 +2,16 @@ class API::V1::SessionsController < Devise::SessionsController
   include ::RackSessionsFix
   respond_to :json
   private
+  def encode_token(payload)
+    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key, 'HS256')
+  end
   def respond_with(current_user, _opts = {})
+    token = encode_token({ sub: resource.id })
     render json: {
       status: { 
         code: 200, message: 'Logged in successfully.',
-        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] }
+        data: { user: UserSerializer.new(current_user).serializable_hash[:data][:attributes] },
+        token: token
       }
     }, status: :ok
   end

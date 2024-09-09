@@ -7,6 +7,7 @@ import axios from 'axios';
 const Events = () => {
     const [events, setEvents] = useState(null);
     const { bar_id } = useParams();
+    console.log(useParams())
 
     useEffect(() => {
         const fetchEvents = async () => { 
