@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, TextField, Button, Typography, Alert, Card, CardContent, Container } from '@mui/material';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
@@ -45,6 +46,8 @@ const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -74,6 +77,10 @@ const SignUp = () => {
       const response = await axios.post('http://127.0.0.1:3001/api/v1/signup', postData);
       setSuccessMessage('Registration successful!');
       setErrorMessage('');
+
+      setTimeout(() => {
+        navigate('/login'); // Cambia '/login' por la ruta que corresponda a tu página de login
+      }, 500); // Puedes ajustar el tiempo de espera según necesites
     } catch (error) {
       setErrorMessage(error.response?.data?.status?.message || 'Error registering user.');
       setSuccessMessage('');
