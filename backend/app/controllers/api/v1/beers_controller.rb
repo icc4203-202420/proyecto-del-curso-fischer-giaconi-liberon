@@ -24,8 +24,7 @@ class API::V1::BeersController < ApplicationController
 def show
   @brewery = @beer.brand.brewery
   @bars = @beer.bars
-  @reviews = @beer.reviews.order(created_at: :desc) # Obtener reseñas ordenadas
-
+  @reviews = @beer.reviews.order(created_at: :desc)
   beer_data = {
     beer: @beer.as_json.merge({
       image_url: @beer.image.attached? ? url_for(@beer.image) : nil,
@@ -33,7 +32,7 @@ def show
     }),
     brewery: @brewery.as_json,
     bars: @bars.as_json(only: [:id, :name, :address]),
-    reviews: @reviews.as_json(include: { user: { only: [:id, :name] } }, only: [:id, :text, :rating, :created_at])
+    reviews: @reviews.as_json(include: { user: { only: [:id, :handle] } }, only: [:id, :text, :rating, :created_at])
   }
 
   render json: beer_data, status: :ok

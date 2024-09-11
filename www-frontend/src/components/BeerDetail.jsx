@@ -151,7 +151,7 @@ const BeerDetail = () => {
             {reviews.length > 0 ? (
                 reviews.map(review => (
                     <div key={review.id}>
-                        <Typography variant="body1"><strong>{review.user_id}:</strong> {review.text} (Rating: {review.rating})</Typography>
+                        <Typography variant="body1"><strong>{review.user.handle}:</strong> {review.text} (Rating: {review.rating})</Typography>
                     </div>
                 ))
             ) : (
