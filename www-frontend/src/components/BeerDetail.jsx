@@ -6,6 +6,8 @@ import { Typography, Container, CircularProgress, TextField, Button, Snackbar, C
 const BeerDetail = () => {
     const { id } = useParams();
     const [beer, setBeer] = useState(null);
+    const [brewery, setBrewery] = useState(null);
+    const [bars, setBars] = useState(null);
     const [loading, setLoading] = useState(true);
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState({ text: '', rating: 5 }); // Initialize rating as a number
@@ -16,8 +18,11 @@ const BeerDetail = () => {
         const fetchBeerDetails = async () => {
             try {
                 const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
+                console.log(response.data);
+                setBrewery(response.data.brewery);
                 setBeer(response.data.beer);
                 setReviews(response.data.reviews);
+                setBars(response.data.bars);
             } catch (error) {
                 console.error("Error fetching beer details:", error);
             } finally {
@@ -93,8 +98,9 @@ const BeerDetail = () => {
 
     return (
         <Container>
-            <Typography variant="h4">{beer.name}</Typography>
-            <Typography variant="h4">Brewer: {beer.brewer}</Typography>
+            <Typography variant="h2">{beer.name}</Typography>
+            <Typography variant="h4">Brewer: {brewery.name}</Typography>
+            <Typography variant="h4">Bars: {bars.map(bar => bar.name).join(', ')}</Typography>
             <Typography variant="h6">Yeast: {beer.yeast}</Typography>
             <Typography variant="body1">Malts: {beer.malts}</Typography>
             <Typography variant="body1">IBU: {beer.ibu}</Typography>
