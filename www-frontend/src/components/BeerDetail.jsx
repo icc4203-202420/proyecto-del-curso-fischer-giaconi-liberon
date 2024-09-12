@@ -10,7 +10,7 @@ const BeerDetail = () => {
     const [bars, setBars] = useState(null);
     const [loading, setLoading] = useState(true);
     const [reviews, setReviews] = useState([]);
-    const [newReview, setNewReview] = useState({ text: '', rating: 5 }); // Initialize rating as a number
+    const [newReview, setNewReview] = useState({ text: '', rating: 5 });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -18,10 +18,20 @@ const BeerDetail = () => {
         const fetchBeerDetails = async () => {
             try {
                 const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
-                console.log(response.data);
+                const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+                
+                // Ordenar las reseñas: primero las del usuario actual
+                const sortedReviews = response.data.reviews.sort((a, b) => {
+                    if (user) {
+                        if (a.user.id === user.id) return -1;
+                        if (b.user.id === user.id) return 1;
+                    }
+                    return 0;
+                });
+
                 setBrewery(response.data.brewery);
                 setBeer(response.data.beer);
-                setReviews(response.data.reviews);
+                setReviews(sortedReviews);
                 setBars(response.data.bars);
             } catch (error) {
                 console.error("Error fetching beer details:", error);
@@ -58,9 +68,8 @@ const BeerDetail = () => {
 
         try {
             const aux_token = localStorage.getItem('token');
-            const token = aux_token.trim()
-            console.log(token)
-            console.log(user.id)
+            const token = aux_token.trim();
+
             await axios.post(`http://127.0.0.1:3001/api/v1/beers/${id}/reviews`, {
                 review: {
                     text: newReview.text,
@@ -68,12 +77,24 @@ const BeerDetail = () => {
                 },
                 user_id: user.id
             }, {
-                headers: { 'Authorization': token.trim() }
+                headers: { 'Authorization': token }
             });
+
             setSuccess('Review submitted successfully!');
-            setNewReview({ text: '', rating: 5 }); // Reset rating to default
+            setNewReview({ text: '', rating: 5 });
+
             const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
-            setReviews(response.data.reviews);
+            
+            // Ordenar nuevamente las reseñas
+            const sortedReviews = response.data.reviews.sort((a, b) => {
+                if (user) {
+                    if (a.user.id === user.id) return -1;
+                    if (b.user.id === user.id) return 1;
+                }
+                return 0;
+            });
+
+            setReviews(sortedReviews);
         } catch (error) {
             setError('Error submitting review.');
             console.error("Error submitting review:", error);
