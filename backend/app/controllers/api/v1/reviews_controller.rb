@@ -1,9 +1,11 @@
 class API::V1::ReviewsController < ApplicationController
+  include Authenticable
+
   respond_to :json
   before_action :set_beer, only: [:index, :create]
   before_action :set_user, only: [:index, :create]
   before_action :set_review, only: [:show, :update, :destroy]
-  # before_action :verify_jwt_token, only: [:create, :update, :destroy]
+  before_action :verify_jwt_token, only: [:create, :update, :destroy]
 
   def index
     @reviews = Review.where(beer: @beer)

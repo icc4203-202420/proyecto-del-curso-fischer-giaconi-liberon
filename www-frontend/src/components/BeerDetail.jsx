@@ -102,7 +102,8 @@ const BeerDetail = () => {
 
         try {
             const aux_token = localStorage.getItem('token');
-            const token = aux_token.trim();
+            const token = aux_token.trim('\n');
+            console.log(token)
 
             await axios.post(`http://127.0.0.1:3001/api/v1/beers/${id}/reviews`, {
                 review: {
@@ -111,7 +112,7 @@ const BeerDetail = () => {
                 },
                 user_id: user.id
             }, {
-                headers: { 'Authorization': token }
+                headers: { Authorization: token }
             });
 
             setSuccess('Review submitted successfully!');
