@@ -10,6 +10,7 @@ import BeerDetail from './components/BeerDetail';
 import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
 import Map from './components/Map';
+import Attendace from './components/Attendance';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -51,6 +52,7 @@ function App() {
             <Route path="/login" element={<LogIn onLogin={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/map" element={<Map />} />
+            {/* <Route path="/bars/:bar_id/events/:event_id" element={<Attendace />}></Route> */}
           </Routes>
         </Container>
       </Box>

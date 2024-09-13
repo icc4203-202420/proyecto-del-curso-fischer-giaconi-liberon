@@ -24,7 +24,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       get 'users/current', to: 'users#current'
       resources :bars do 
-        resources :events
+        resources :events do
+          resources :attendances
+        end
       end
       resources :beers do
         resources :reviews
