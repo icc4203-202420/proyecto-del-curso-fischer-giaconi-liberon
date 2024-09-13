@@ -6,17 +6,17 @@ import ReactStars from 'react-rating-stars-component';
 import { styled } from '@mui/system';
 
 const CustomTabs = styled(Tabs)(({ theme }) => ({
-  borderBottom: `2px solid #C0874F`, // Border color for the bottom
-  borderTop: `2px solid #C0874F`, // Border color for the top
+  borderBottom: `2px solid #C0874F`,
+  borderTop: `2px solid #C0874F`,
   '.MuiTabs-indicator': {
-    backgroundColor: '#C0874F', // Color of the indicator bar
+    backgroundColor: '#C0874F',
   },
 }));
 
 const CustomTab = styled(Tab)(({ theme }) => ({
-  color: '#FFF', // Color for unselected tab text
+  color: '#FFF',
   '&.Mui-selected': {
-    color: '#C0874F', // Color of the selected tab text
+    color: '#C0874F',
   },
 }));
 

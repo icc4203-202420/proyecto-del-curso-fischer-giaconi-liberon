@@ -21,24 +21,23 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
-// Función para verificar si el usuario está logueado
 const isAuthenticated = () => {
-  return !!localStorage.getItem('token'); // O sessionStorage si prefieres
+  return !!localStorage.getItem('token');
 };
 
 export default function AppAppBar() {
-  const loggedIn = isAuthenticated(); // Determina si el usuario está logueado
+  const loggedIn = isAuthenticated(); 
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Elimina el token del almacenamiento local
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.reload(); // Refresca la página o redirige a la página de inicio
+    window.location.reload();
   };
 
   return (
     <AppBar
       position="fixed"
-      sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 10 }}
+      sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 5 }}
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>

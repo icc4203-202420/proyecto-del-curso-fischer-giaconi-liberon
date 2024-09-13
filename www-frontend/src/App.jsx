@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Box, Container } from '@mui/material';
 import AppAppBar from './components/AppAppBar';
 import Home from './components/Home';
@@ -14,19 +14,31 @@ import Attendace from './components/Attendance';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const location = useLocation();
 
   const handleLogin = (newToken) => {
     setToken(newToken);
     localStorage.setItem('token', newToken);
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      window.scrollTo(0, 0);
+    };
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('popstate', handleScroll);
+    };
+  }, [location.pathname]);
   return (
     <>
       <AppAppBar />
       <Box
         component="main"
         sx={{
-          pt: 20,
+          pt: (theme) => theme.spacing(15),
           display: 'flex',
           flexDirection: 'column',
           minHeight: 'calc(100vh - 64px)'
