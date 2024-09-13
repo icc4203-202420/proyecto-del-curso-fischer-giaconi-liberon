@@ -9,6 +9,7 @@ import Events from './components/Events';
 import BeerDetail from './components/BeerDetail';
 import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
+import Map from './components/Map';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -49,6 +50,7 @@ function App() {
             <Route path="/beers/:id" element={<BeerDetail />} />
             <Route path="/login" element={<LogIn onLogin={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/map" element={<Map />} />
           </Routes>
         </Container>
       </Box>

@@ -70,6 +70,15 @@ export default function AppAppBar() {
             >
               Users
             </Button>
+            <Button
+              component={Link}
+              to="/map"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Map
+            </Button>
           </Box>
           <Box>
             {loggedIn ? (
