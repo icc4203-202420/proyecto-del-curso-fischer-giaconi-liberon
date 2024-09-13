@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Box, TextField, Button, Typography, Alert, Card, CardContent, Container } from '@mui/material';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 
-// Define a theme for the login
 const theme = createTheme({
   palette: {
     primary: {
@@ -56,8 +55,8 @@ const LogIn = ({ onLogin }) => {
         setErrorMessage('');
 
         setTimeout(() => {
-          navigate('/'); // Cambia '/login' por la ruta que corresponda a tu página de login
-        }, 500); // Puedes ajustar el tiempo de espera según necesites
+          navigate('/');
+        }, 500);
       } else {
         setErrorMessage('Unable to retrieve token. Please try again.');
       }

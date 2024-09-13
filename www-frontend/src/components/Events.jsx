@@ -28,7 +28,6 @@ const Events = () => {
         fetchEvents();
     }, [bar_id]);
 
-    // Helper function to format the date and time
     const formatDateTime = (dateTime) => {
         const date = new Date(dateTime);
         const formattedDate = date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -54,7 +53,7 @@ const Events = () => {
                 <IconButton
                     component={Link}
                     to="/explore"
-                    style={{ position: 'absolute', top: '16px', left: '16px', color: '#FFFFFF' }} // White icon color
+                    style={{ position: 'absolute', top: '16px', left: '16px', color: '#FFFFFF' }}
                 >
                     <ArrowBackIcon />
                 </IconButton>
@@ -72,9 +71,9 @@ const Events = () => {
                             <ListItem key={event.id} style={{ backgroundColor: '#3A2B2A', color: '#FFFFFF', marginBottom: '8px', paddingLeft: '25px' }}>
                                 <ListItemAvatar>
                                     <Avatar 
-                                        src={`path/to/your/image/${event.id}.jpg`} // Replace with actual image path
+                                        src={`path/to/your/image/${event.id}.jpg`} 
                                         alt={event.name}
-                                        style={{ width: 100, height: 100 }} // Squared and larger
+                                        style={{ width: 100, height: 100 }} 
                                     />
                                 </ListItemAvatar>
                                 <ListItemText
@@ -114,7 +113,7 @@ const Events = () => {
                                             />
                                         </>
                                     }
-                                    style={{ marginLeft: '50px' }} // Push text to the right
+                                    style={{ marginLeft: '50px' }} 
                                 />
                             </ListItem>
                         );

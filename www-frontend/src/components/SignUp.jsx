@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Box, TextField, Button, Typography, Alert, Card, CardContent, Container } from '@mui/material';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 
-// Define a theme for the sign-up
 const theme = createTheme({
   palette: {
     primary: {
@@ -55,7 +54,6 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Organizar los datos en el formato requerido
       const postData = {
         user: {
           first_name: formData.first_name,
@@ -73,14 +71,13 @@ const SignUp = () => {
         },
       };
 
-      // Enviar la solicitud POST
       const response = await axios.post('http://127.0.0.1:3001/api/v1/signup', postData);
       setSuccessMessage('Registration successful!');
       setErrorMessage('');
 
       setTimeout(() => {
-        navigate('/login'); // Cambia '/login' por la ruta que corresponda a tu página de login
-      }, 500); // Puedes ajustar el tiempo de espera según necesites
+        navigate('/login'); 
+      }, 500); 
     } catch (error) {
       setErrorMessage(error.response?.data?.status?.message || 'Error registering user.');
       setSuccessMessage('');
