@@ -11,6 +11,7 @@ import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
 import Map from './components/Map';
 import Attendace from './components/Attendance';
+import Bar from './components/Bar';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -60,6 +61,7 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/usersearch" element={<UserSearch />} />
             <Route path="/bars/:bar_id/events" element={<Events />} />
+            <Route path="/bars" element={<Bar />} />
             <Route path="/beers/:id" element={<BeerDetail />} />
             <Route path="/login" element={<LogIn onLogin={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
