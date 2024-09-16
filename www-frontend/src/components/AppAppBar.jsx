@@ -4,9 +4,7 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
-import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -23,52 +21,98 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   padding: '8px 12px',
 }));
 
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
 export default function AppAppBar() {
+  const loggedIn = isAuthenticated(); 
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.reload();
+  };
+
   return (
     <AppBar
       position="fixed"
-      sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 10 }}
+      sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 5 }}
     >
       <Container maxWidth="lg">
         <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-            <Box>
-              <Button
-                component={Link}
-                to="/"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Home
-              </Button>
-              <Button
-                component={Link}
-                to="/explore"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Explore
-              </Button>
-              <Button
-                component={Link}
-                to="/usersearch"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Users
-              </Button>
-            </Box>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+            <Button
+              component={Link}
+              to="/"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Home
+            </Button>
+            <Button
+              component={Link}
+              to="/explore"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Explore
+            </Button>
+            <Button
+              component={Link}
+              to="/usersearch"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Users
+            </Button>
+            <Button
+              component={Link}
+              to="/map"
+              variant="text"
+              size="small"
+              sx={{ color: 'white', textTransform: 'none' }}
+            >
+              Map
+            </Button>
           </Box>
-          <Box
-            sx={{
-              display: { xs: 'none', md: 'flex' },
-              gap: 1,
-              alignItems: 'center',
-            }}
-          >
+          <Box>
+            {loggedIn ? (
+              // Si está logueado, mostrar "Logout"
+              <Button
+                onClick={handleLogout}
+                variant="text"
+                size="small"
+                sx={{ color: 'white', textTransform: 'none' }}
+              >
+                Log Out
+              </Button>
+            ) : (
+              // Si no está logueado, mostrar "Login" y "Sign Up"
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="text"
+                  size="small"
+                  sx={{ color: 'white', textTransform: 'none' }}
+                >
+                  Log In
+                </Button>
+                <Button
+                  component={Link}
+                  to="/signup"
+                  variant="text"
+                  size="small"
+                  sx={{ color: 'white', textTransform: 'none' }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Box>
         </StyledToolbar>
       </Container>
