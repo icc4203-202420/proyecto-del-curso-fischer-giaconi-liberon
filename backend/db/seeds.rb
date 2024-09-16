@@ -15,6 +15,15 @@ ReviewCounter.create(count: 0)
 
 if Rails.env.development?
 
+  central_location = { lat: -33.4489, lng: -70.6693 }
+  radius = 5000
+  def random_location_within_radius(center, radius)
+    radius_in_degrees = radius / 111_000
+    lat = center[:lat] + radius_in_degrees * (rand - 0.5)
+    lng = center[:lng] + radius_in_degrees * (rand - 0.5)
+    { lat: lat, lng: lng }
+  end
+
   # Crear países
   countries = FactoryBot.create_list(:country, 5)
 
@@ -29,9 +38,14 @@ if Rails.env.development?
   end
 
   # Crear bares con direcciones y cervezas asociadas
-  bars = FactoryBot.create_list(:bar, 5) do |bar|
+  bars = FactoryBot.create_list(:bar, 100) do |bar|
     bar.address.update(country: countries.sample)
     bar.beers << Beer.all.sample(rand(1..3))
+  end
+
+  5.times do
+    location = random_location_within_radius(central_location, radius)
+    FactoryBot.create(:bar, name: "Bar #{rand(1000)}", latitude: location[:lat], longitude: location[:lng], address: FactoryBot.create(:address, country: countries.sample))
   end
 
   # Crear eventos asociados a los bares
