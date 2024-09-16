@@ -10,7 +10,7 @@ class API::V1::EventsController < ApplicationController
     def index
         events = @bar.events
         
-        render json: { events: events }, status: :ok 
+        render json: { events: events, bar: @bar }, status: :ok 
     end
 
     def show

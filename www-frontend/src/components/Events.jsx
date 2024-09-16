@@ -9,6 +9,7 @@ import Attendance from './Attendance';
 const Events = () => {
     const [ events, setEvents ] = useState(null);
     const { bar_id } = useParams();
+    const [ bar, setBar ] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
     useEffect(() => {
@@ -17,9 +18,11 @@ const Events = () => {
                 const event_url = `http://127.0.0.1:3001/api/v1/bars/${bar_id}/events`;
                 const response = await axios.get(event_url); 
                 const data = await response.data;
+                console.log(data)
 
                 if (data.events) { 
                     setEvents(data.events);
+                    setBar(data.bar);
                 }
             } catch (error) {
                 console.error("Error fetching events:", error);
@@ -57,9 +60,16 @@ const Events = () => {
                 >
                     <ArrowBackIcon />
                 </IconButton>
-                <Typography variant="h2" gutterBottom align="center" style={{ color: '#FFFFFF' }}>
-                    Eventos del bar
-                </Typography>
+                { bar ? (
+                    <Typography variant="h2" gutterBottom align="center" style={{ color: '#FFFFFF' }}>
+                        Eventos de { bar.name }
+                    </Typography>
+                ) : (
+                    <Typography variant="h2" gutterBottom align="center" style={{ color: '#FFFFFF' }}>
+                        Eventos de bar
+                    </Typography>
+                )}
+                
             </Paper>
 
             {/* Events list */}
