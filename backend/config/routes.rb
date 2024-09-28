@@ -32,6 +32,9 @@ Rails.application.routes.draw do
         resources :reviews
       end
       resources :users do
+        collection do
+          get :search
+        end
         member do
           get :friendships
           post :friendships, action: :create_friendship

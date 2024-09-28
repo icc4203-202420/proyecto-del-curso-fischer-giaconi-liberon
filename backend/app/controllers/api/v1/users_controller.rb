@@ -6,6 +6,7 @@ class API::V1::UsersController < ApplicationController
 
   def index
     @users = User.includes(:reviews, :address).all
+    render json: @users
   end
 
   def show
@@ -50,6 +51,15 @@ class API::V1::UsersController < ApplicationController
     end
   end
 
+  def search
+    if params[:handle].present?
+      @users = User.where('handle ILIKE ?', "%#{params[:handle]}%")
+    else
+      @users = User.all
+    end
+    render json: @users
+  end
+  
   private
 
   def set_user

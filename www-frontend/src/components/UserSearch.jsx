@@ -1,50 +1,60 @@
-import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box, Grid } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Typography, Container, List, ListItem, ListItemText, CircularProgress, Grid } from '@mui/material';
+import SearchBar from './SearchBar';
 
 const UserSearch = () => {
-    const [handle, setHandle] = useState("");
+    const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleInputChange = (event) => {
-        setHandle(event.target.value);
-    };
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:3001/api/v1/users');
+                console.log("Usuarios obtenidos:", response.data);
+                setUsers(response.data);
+                setFilteredUsers(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                setLoading(false);
+            }
+        };
 
-    const handleSearch = () => {
-        console.log("Buscando usuario:", handle);
+        fetchUsers();
+    }, []);
+
+    const handleSearch = (query) => {
+        if (query) {
+            const filtered = users.filter(user => 
+                user.handle.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredUsers(filtered);
+        } else {
+            setFilteredUsers(users);
+        }
     };
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                Search User by Handle
-            </Typography>
-            <Box sx={{ mb: 4 }}>
-                <TextField
-                    label="User's Handle"
-                    variant="outlined"
-                    value={handle}
-                    onChange={handleInputChange}
-                    fullWidth
-                    sx={{
-                        '& .MuiInputLabel-root': { color: '#ffffff' },
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': { borderColor: '#ffffff' },
-                            '&:hover fieldset': { borderColor: '#ffffff' },
-                            '&.Mui-focused fieldset': { borderColor: '#ffffff' },
-                        },
-                        '& .MuiInputBase-root': { color: '#ffffff' },
-                    }}
-                />
-            </Box>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSearch}
-                startIcon={<AccountCircleIcon />}
-                sx={{ width: '100%', py: 1 }}
-            >
-                Search
-            </Button>
+        <Container>
+            <SearchBar onSearch={handleSearch} placeholder="Buscar usuarios..." />
+            {loading ? (
+                <Grid container justifyContent="center" alignItems="center" style={{ height: '50vh' }}>
+                    <CircularProgress />
+                </Grid>
+            ) : (
+                <List>
+                    {filteredUsers.map(user => (
+                        <ListItem key={user.id}>
+                            <ListItemText
+                                primary={<Typography variant="h6">{user.first_name} {user.last_name}</Typography>}
+                                secondary={<Typography variant="body2">{user.email}</Typography>}
+                            />
+                        </ListItem>
+                    ))}
+                </List>
+            )}
         </Container>
     );
 };
