@@ -1,35 +1,66 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Typography, Container, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, Paper, CircularProgress, Button, Snackbar } from '@mui/material';
+import {
+    Typography,
+    Container,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemAvatar,
+    Avatar,
+    IconButton,
+    Paper,
+    CircularProgress,
+    Button,
+    Snackbar,
+    ImageList,
+    ImageListItem,
+    ImageListItemBar,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import AddAttendance from './AddAttendance';
 import Attendance from './Attendance';
+import UploadImage from './UploadImage'; 
 
 const Events = () => {
-    const [ events, setEvents ] = useState(null);
+    const [events, setEvents] = useState(null);
     const { bar_id } = useParams();
-    const [ bar, setBar ] = useState(null);
+    const [bar, setBar] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [eventPictures, setEventPictures] = useState([]);
+    const userId = 1; // Replace with the actual user ID from your context or state
 
     useEffect(() => {
-        const fetchEvents = async () => { 
+        const fetchEvents = async () => {
             try {
                 const event_url = `http://127.0.0.1:3001/api/v1/bars/${bar_id}/events`;
-                const response = await axios.get(event_url); 
+                const response = await axios.get(event_url);
                 const data = await response.data;
-                console.log(data)
 
-                if (data.events) { 
+                if (data.events) {
                     setEvents(data.events);
                     setBar(data.bar);
+                    // Optionally fetch event pictures for the first event or handle it differently
+                    if (data.events.length > 0) {
+                        fetchEventPictures(data.events[0].id);
+                    }
                 }
             } catch (error) {
-                console.error("Error fetching events:", error);
+                console.error('Error fetching events:', error);
             }
         };
         fetchEvents();
     }, [bar_id]);
+
+    const fetchEventPictures = async (eventId) => {
+        try {
+            const response = await axios.get(`http://127.0.0.1:3001/api/v1/event_pictures?event_id=${eventId}`);
+            setEventPictures(response.data);
+        } catch (error) {
+            console.error('Error fetching event pictures:', error);
+        }
+    };
 
     const formatDateTime = (dateTime) => {
         const date = new Date(dateTime);
@@ -48,9 +79,8 @@ const Events = () => {
 
     return (
         <Container style={{ paddingTop: '20px', paddingBottom: '20px' }}>
-            {/* Top flyer and button */}
-            <Paper 
-                elevation={3} 
+            <Paper
+                elevation={3}
                 style={{ padding: '16px', marginBottom: '16px', position: 'relative', backgroundColor: '#3A2B2A' }}
             >
                 <IconButton
@@ -60,19 +90,17 @@ const Events = () => {
                 >
                     <ArrowBackIcon />
                 </IconButton>
-                { bar ? (
+                {bar ? (
                     <Typography variant="h2" gutterBottom align="center" style={{ color: '#FFFFFF' }}>
-                        Eventos de { bar.name }
+                        Eventos de {bar.name}
                     </Typography>
                 ) : (
                     <Typography variant="h2" gutterBottom align="center" style={{ color: '#FFFFFF' }}>
                         Eventos de bar
                     </Typography>
                 )}
-                
             </Paper>
 
-            {/* Events list */}
             {events ? (
                 <List>
                     {events.map((event) => {
@@ -80,10 +108,10 @@ const Events = () => {
                         return (
                             <ListItem key={event.id} style={{ backgroundColor: '#3A2B2A', color: '#FFFFFF', marginBottom: '8px', paddingLeft: '25px' }}>
                                 <ListItemAvatar>
-                                    <Avatar 
-                                        src={`path/to/your/image/${event.id}.jpg`} 
+                                    <Avatar
+                                        src={`path/to/your/image/${event.id}.jpg`}
                                         alt={event.name}
-                                        style={{ width: 100, height: 100 }} 
+                                        style={{ width: 100, height: 100 }}
                                     />
                                 </ListItemAvatar>
                                 <ListItemText
@@ -97,8 +125,8 @@ const Events = () => {
                                             <Typography style={{ color: '#FFFFFF' }}>Fecha: {formattedDate}</Typography>
                                             <Typography style={{ color: '#FFFFFF' }}>Hora: {formattedTime}</Typography>
                                             <Typography style={{ color: '#FFFFFF' }}>ID del Bar: {event.bar_id}</Typography>
-                                            <AddAttendance bar_id={bar_id} event_id={event.id} onCheckIn={handleCheckIn}/>
-                                            <Attendance event_id={event.id} />
+                                            <AddAttendance bar_id={bar_id} event_id={event.id} onCheckIn={handleCheckIn} />
+                                            <Attendance event_id={event.id} />
                                             <Snackbar
                                                 open={openSnackbar}
                                                 autoHideDuration={6000}
@@ -110,8 +138,8 @@ const Events = () => {
                                                     </Button>
                                                 }
                                                 anchorOrigin={{
-                                                    vertical: 'center', 
-                                                    horizontal: 'center', 
+                                                    vertical: 'center',
+                                                    horizontal: 'center',
                                                 }}
                                                 style={{
                                                     position: 'fixed',
@@ -123,7 +151,7 @@ const Events = () => {
                                             />
                                         </>
                                     }
-                                    style={{ marginLeft: '50px' }} 
+                                    style={{ marginLeft: '50px' }}
                                 />
                             </ListItem>
                         );
@@ -132,6 +160,32 @@ const Events = () => {
             ) : (
                 <CircularProgress style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }} />
             )}
+
+            {/* Upload Image Section */}
+            {events && events.map(event => (
+                <UploadImage key={event.id} eventId={event.id} userId={userId} />
+            ))}
+
+            {/* Gallery Section */}
+            <Typography variant="h4" style={{ marginTop: '20px' }}>
+                Galería de Imágenes
+            </Typography>
+            <ImageList sx={{ width: '100%', height: 'auto' }}>
+                {eventPictures.map((item) => (
+                    <ImageListItem key={item.image_url}>
+                        <img
+                            src={item.image_url}
+                            alt={item.title}
+                            loading="lazy"
+                        />
+                        <ImageListItemBar
+                            title={item.user.handle}
+                            subtitle={<span>by: {item.user.name}</span>}
+                            position="below"
+                        />
+                    </ImageListItem>
+                ))}
+            </ImageList>
         </Container>
     );
 };

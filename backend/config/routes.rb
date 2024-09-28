@@ -42,7 +42,10 @@ Rails.application.routes.draw do
         resources :reviews, only: [:index]
         resources :friendships, only: [:index, :create]
       end
-      resources :events
+      resources :event_pictures, only: [:create, :index]
+      resources :events do
+        get 'pictures', to: 'event_pictures#index'
+      end
 
       resources :reviews, only: [:index, :show, :create, :update, :destroy]
     end
