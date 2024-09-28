@@ -43,6 +43,7 @@ class API::V1::UsersController < ApplicationController
 
   #POST friendships
   def create_friendship
+    puts(params)
     @friendship = @user.friendships.new(friendship_params)
     if @friendship.save
       render json: @friendship, status: :created
@@ -76,7 +77,7 @@ class API::V1::UsersController < ApplicationController
   end
 
   def friendship_params
-    params.require(:friendship).permit(:friend_id, :bar_id)
+    params.require(:friendship).permit(:friend_id, :bar_id, :event_id)
   end
 
 end
