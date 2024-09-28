@@ -1,4 +1,4 @@
-class Api::V1::EventPicturesController < ApplicationController
+class API::V1::EventPicturesController < ApplicationController
   def index
     event_pictures = EventPicture.where(event_id: params[:event_id])
     render json: event_pictures, status: :ok
