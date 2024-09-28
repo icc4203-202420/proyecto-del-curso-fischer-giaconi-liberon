@@ -107,7 +107,6 @@ export default function ResponsiveAppBar() {
             </Menu>
           </Box>
 
-          {/* Menú de navegación en pantallas más grandes */}
           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
           <Typography
             variant="h5"
@@ -142,7 +141,6 @@ export default function ResponsiveAppBar() {
             ))}
           </Box>
 
-          {/* Opciones de usuario */}
           <Box sx={{ flexGrow: 0 }}>
             {loggedIn ? (
               <>
@@ -168,7 +166,19 @@ export default function ResponsiveAppBar() {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}>
+                    <MenuItem
+                      key={setting}
+                      onClick={() => {
+                        if (setting === 'Profile') {
+                          handleCloseUserMenu(); // Cierra el menú
+                          window.location.href = `/users/${JSON.parse(localStorage.getItem('user')).id}`; // Cambia a la ruta del perfil
+                        } else if (setting === 'Logout') {
+                          handleLogout(); // Maneja el logout
+                        } else {
+                          handleCloseUserMenu(); // Para cualquier otra opción
+                        }
+                      }}
+                    >
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
                   ))}
