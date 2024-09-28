@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Container, Grid, CircularProgress, Card, CardContent, Box } from '@mui/material';
+import { Typography, Container, Grid, CircularProgress, Card, CardContent, Box, Button } from '@mui/material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -36,6 +36,35 @@ const Attendance = ({ event_id }) => {
         }
     }, [bar_id, event_id]);
 
+    // Función para manejar solicitud de amistad
+    const handleAddFriend = async (user_id) => {
+        const token = localStorage.getItem('token');
+        const current_user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        console.log(current_user.id);
+        console.log(user_id);   
+        
+        try {
+            await axios.post(
+                `http://127.0.0.1:3001/api/v1/users/${user_id}/friendships`, {
+                    friendship: {
+                        friend_id: current_user.id,
+                        bar_id: bar_id,
+                        event_id: event_id,
+                    }
+                },
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }
+            );
+            alert('Solicitud de amistad enviada.');
+        } catch (error) {
+            console.error('Error al enviar solicitud de amistad:', error);
+            alert('Error al enviar solicitud de amistad.');
+        }
+    };
+
     return (
         <Box sx={{ backgroundColor: '#3A2B2A', color: '#FFF', padding: 2, minHeight: '100vh' }}>
             <Typography 
@@ -44,7 +73,7 @@ const Attendance = ({ event_id }) => {
                     marginBottom: 3, 
                     textAlign: 'center', 
                     color: '#FFF', 
-                    fontFamily: 'Arial, sans-serif', // Fuente similar a la usada en el primer código 
+                    fontFamily: 'Arial, sans-serif', 
                     fontWeight: 'bold' 
                 }}
             >
@@ -64,7 +93,7 @@ const Attendance = ({ event_id }) => {
                                         sx={{ 
                                             marginBottom: 2, 
                                             color: '#C0874F', 
-                                            fontFamily: 'Arial, sans-serif', // Usamos 'Arial' como en las reviews
+                                            fontFamily: 'Arial, sans-serif',
                                             fontWeight: 'bold'
                                         }}
                                     >
@@ -73,6 +102,15 @@ const Attendance = ({ event_id }) => {
                                     <Typography variant="body1" sx={{ color: '#FFF', fontFamily: 'Arial, sans-serif' }}>
                                         Checked In: {attendance.checked_in ? 'Yes' : 'No'}
                                     </Typography>
+
+                                    {/* Botón para agregar amigo */}
+                                    <Button 
+                                        variant="contained" 
+                                        sx={{ marginTop: 2, backgroundColor: '#C0874F', color: '#FFF' }}
+                                        onClick={() => handleAddFriend(attendance.user_id)}
+                                    >
+                                        Agregar Amigo
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </Grid>
