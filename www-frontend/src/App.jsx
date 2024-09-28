@@ -10,8 +10,9 @@ import BeerDetail from './components/BeerDetail';
 import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
 import Map from './components/Map';
-import Attendace from './components/Attendance';
+import Attendance from './components/Attendance';
 import Bar from './components/Bar';
+import User from './components/User'; // Importar el componente User
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -33,6 +34,7 @@ function App() {
       window.removeEventListener('popstate', handleScroll);
     };
   }, [location.pathname]);
+
   return (
     <>
       <AppAppBar />
@@ -42,7 +44,7 @@ function App() {
           pt: (theme) => theme.spacing(15),
           display: 'flex',
           flexDirection: 'column',
-          minHeight: 'calc(100vh - 64px)'
+          minHeight: 'calc(100vh - 64px)',
         }}
       >
         <Container
@@ -66,7 +68,8 @@ function App() {
             <Route path="/login" element={<LogIn onLogin={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/map" element={<Map />} />
-            {/* <Route path="/bars/:bar_id/events/:event_id" element={<Attendace />}></Route> */}
+            <Route path="/users/:id" element={<User />} /> {/* Ruta para el perfil */}
+            {/* <Route path="/bars/:bar_id/events/:event_id" element={<Attendance />}></Route> */}
           </Routes>
         </Container>
       </Box>
