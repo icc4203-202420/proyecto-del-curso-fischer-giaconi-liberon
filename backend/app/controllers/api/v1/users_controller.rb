@@ -43,7 +43,6 @@ class API::V1::UsersController < ApplicationController
 
   #POST friendships
   def create_friendship
-    puts(params)
     @friendship = @user.friendships.new(friendship_params)
     if @friendship.save
       render json: @friendship, status: :created
