@@ -65,6 +65,9 @@ export default function ResponsiveAppBar() {
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
+              '&:hover': {
+                color: '#fff', // Change text color on hover
+              },
             }}
           >
             BREWBUDDIES
@@ -98,7 +101,16 @@ export default function ResponsiveAppBar() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
+                >
                   <Typography textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
                     {page}
                   </Typography>
@@ -134,7 +146,15 @@ export default function ResponsiveAppBar() {
                 component={Link}
                 to={`/${page.toLowerCase()}`}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{
+                  my: 2,
+                  color: 'white',
+                  display: 'block',
+                  '&:hover': {
+                    backgroundColor: '#d19b72',
+                    color: '#fff',
+                  },
+                }}
               >
                 {page}
               </Button>
@@ -170,13 +190,19 @@ export default function ResponsiveAppBar() {
                       key={setting}
                       onClick={() => {
                         if (setting === 'Profile') {
-                          handleCloseUserMenu(); // Cierra el menú
-                          window.location.href = `/users/${JSON.parse(localStorage.getItem('user')).id}`; // Cambia a la ruta del perfil
+                          handleCloseUserMenu();
+                          window.location.href = `/users/${JSON.parse(localStorage.getItem('user')).id}`;
                         } else if (setting === 'Logout') {
-                          handleLogout(); // Maneja el logout
+                          handleLogout();
                         } else {
-                          handleCloseUserMenu(); // Para cualquier otra opción
+                          handleCloseUserMenu();
                         }
+                      }}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#d19b72',
+                          color: '#fff',
+                        },
                       }}
                     >
                       <Typography textAlign="center">{setting}</Typography>
@@ -191,7 +217,14 @@ export default function ResponsiveAppBar() {
                   to="/login"
                   variant="text"
                   size="small"
-                  sx={{ color: 'white', textTransform: 'none' }}
+                  sx={{
+                    color: 'white',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
                 >
                   Log In
                 </Button>
@@ -200,7 +233,14 @@ export default function ResponsiveAppBar() {
                   to="/signup"
                   variant="text"
                   size="small"
-                  sx={{ color: 'white', textTransform: 'none' }}
+                  sx={{
+                    color: 'white',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
                 >
                   Sign Up
                 </Button>
