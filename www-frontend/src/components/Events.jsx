@@ -56,7 +56,7 @@ const Events = () => {
     const fetchEventPictures = async (eventId) => {
         try {
             const response = await axios.get(`http://127.0.0.1:3001/api/v1/event_pictures?event_id=${eventId}`);
-            console.log(response);
+            console.log(response.data);
             setEventPictures(response.data);
         } catch (error) {
             console.error('Error fetching event pictures:', error);
@@ -180,8 +180,8 @@ const Events = () => {
                             loading="lazy"
                         />
                         <ImageListItemBar
-                            title={item.handle}
-                            subtitle={<span>by: {item.handle}</span>}
+                            title={item.description}
+                            subtitle={<span>by: {item.user.handle}</span>}
                             position="below"
                         />
                     </ImageListItem>
