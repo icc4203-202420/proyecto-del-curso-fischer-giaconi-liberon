@@ -5,10 +5,12 @@ import { useParams } from 'react-router-dom';
 
 const Attendance = ({ event_id }) => {
     const [attendances, setAttendances] = useState([]);
+    const [currentUser, setCurrentUser] = useState();
     const [error, setError] = useState('');
     const { bar_id } = useParams();
 
     useEffect(() => {
+        setCurrentUser(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null);
         const fetchAttendances = async () => {
             const token = localStorage.getItem('token'); 
 
@@ -104,13 +106,16 @@ const Attendance = ({ event_id }) => {
                                     </Typography>
 
                                     {/* Botón para agregar amigo */}
-                                    <Button 
+                                    {currentUser && currentUser.id !== parseInt(attendance.user_id) && (
+                                       <Button 
                                         variant="contained" 
                                         sx={{ marginTop: 2, backgroundColor: '#C0874F', color: '#FFF' }}
                                         onClick={() => handleAddFriend(attendance.user_id)}
                                     >
                                         Agregar Amigo
-                                    </Button>
+                                    </Button> 
+                                    )}
+                                    
                                 </CardContent>
                             </Card>
                         </Grid>
