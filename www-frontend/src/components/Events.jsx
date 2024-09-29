@@ -29,7 +29,7 @@ const Events = () => {
     const [bar, setBar] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [eventPictures, setEventPictures] = useState([]);
-    const userId = 1; // Replace with the actual user ID from your context or state
+    const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null; // Replace with the actual user ID from your context or state
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -56,6 +56,7 @@ const Events = () => {
     const fetchEventPictures = async (eventId) => {
         try {
             const response = await axios.get(`http://127.0.0.1:3001/api/v1/event_pictures?event_id=${eventId}`);
+            console.log(response);
             setEventPictures(response.data);
         } catch (error) {
             console.error('Error fetching event pictures:', error);
@@ -163,7 +164,7 @@ const Events = () => {
 
             {/* Upload Image Section */}
             {events && events.map(event => (
-                <UploadImage key={event.id} eventId={event.id} userId={userId} />
+                <UploadImage key={event.id} eventId={event.id} userId={currentUser} />
             ))}
 
             {/* Gallery Section */}
@@ -179,8 +180,8 @@ const Events = () => {
                             loading="lazy"
                         />
                         <ImageListItemBar
-                            title={item.user.handle}
-                            subtitle={<span>by: {item.user.name}</span>}
+                            title={item.handle}
+                            subtitle={<span>by: {item.handle}</span>}
                             position="below"
                         />
                     </ImageListItem>

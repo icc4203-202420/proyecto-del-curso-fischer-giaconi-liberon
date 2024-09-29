@@ -13,7 +13,8 @@ const UploadImage = ({ eventId, userId }) => {
         const formData = new FormData();
         formData.append('event_picture[image]', file);
         formData.append('event_picture[event_id]', eventId);
-        formData.append('event_picture[user_id]', userId);
+        formData.append('event_picture[user_id]', userId.id);
+        formData.append('event_picture[handle]', userId.handle);
 
         try {
             await axios.post('http://127.0.0.1:3001/api/v1/event_pictures', formData, {
