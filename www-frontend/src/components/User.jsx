@@ -10,10 +10,11 @@ const User = () => {
   const [friendshipStatus, setFriendshipStatus] = useState(null); // Para manejar el estado de la solicitud de amistad
   const [alertType, setAlertType] = useState(''); // Estado para manejar el tipo de alerta
 
+  const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null; // Obtener usuario actual
+
   // Función para manejar solicitud de amistad
   const handleAddFriend = async () => {
     const token = localStorage.getItem('token');
-    const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
     if (!currentUser) {
       setFriendshipStatus('Debes iniciar sesión para agregar amigos.');
@@ -25,7 +26,7 @@ const User = () => {
       const response = await axios.post(
         `http://127.0.0.1:3001/api/v1/users/${id}/friendships`, {
           friendship: {
-            friend_id: currentUser.id, // ID del usuario que se está viendo
+            friend_id: currentUser.id, // ID del usuario logueado
           }
         },
         {
@@ -76,15 +77,17 @@ const User = () => {
       <Typography variant="h4">{`${user.first_name} ${user.last_name}`}</Typography>
       <Typography variant="body1">Handle: {user.handle}</Typography>
       
-      {/* Botón para agregar amigo */}
-      <Button 
-        variant="contained" 
-        color="primary" 
-        style={{ marginTop: '20px' }} 
-        onClick={handleAddFriend}
-      >
-        Agregar Amigo
-      </Button>
+      {/* Mostrar botón solo si el ID del usuario logueado es diferente del ID de la URL */}
+      {currentUser && currentUser.id !== parseInt(id) && (
+        <Button 
+          variant="contained" 
+          color="primary" 
+          style={{ marginTop: '20px' }} 
+          onClick={handleAddFriend}
+        >
+          Agregar Amigo
+        </Button>
+      )}
 
       {/* Mostrar alerta de la solicitud de amistad */}
       {friendshipStatus && (
