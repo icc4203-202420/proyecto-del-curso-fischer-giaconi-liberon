@@ -9,6 +9,8 @@ const User = () => {
   const [loading, setLoading] = useState(true);
   const [friendshipStatus, setFriendshipStatus] = useState(null); // Para manejar el estado de la solicitud de amistad
   const [alertType, setAlertType] = useState(''); // Estado para manejar el tipo de alerta
+  const [event, setEvent] = useState(null);
+  const [friendship, setFriendship] = useState(null);
 
   const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null; // Obtener usuario actual
 
@@ -47,8 +49,20 @@ const User = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:3001/api/v1/users/${id}`); // Asegúrate de que tu API tenga esta ruta
-        setUser(response.data);
+        const response = await axios.get(`http://127.0.0.1:3001/api/v1/users/${id}`, {
+          params: {
+            current_user: currentUser.id,
+          }
+        }); // Asegúrate de que tu API tenga esta ruta
+        // console.log(response.data)
+        if (response.data.friendship) {
+          setEvent(response.data.event);
+          setUser(response.data.user);
+          setFriendship(response.data.friendship);
+          console.log(response.data.friendship)
+        } else {
+          setUser(response.data);
+        }
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
@@ -78,22 +92,31 @@ const User = () => {
       <Typography variant="body1">Handle: {user.handle}</Typography>
       
       {/* Mostrar botón solo si el ID del usuario logueado es diferente del ID de la URL */}
-      {currentUser && currentUser.id !== parseInt(id) && (
-        <Button 
-          variant="contained" 
-          color="primary" 
-          style={{ marginTop: '20px' }} 
-          onClick={handleAddFriend}
-        >
-          Agregar Amigo
-        </Button>
-      )}
+      {!friendship && (
+        currentUser && currentUser.id !== parseInt(id) && (
+          <Button 
+            variant="contained" 
+            color="primary" 
+            style={{ marginTop: '20px' }} 
+            onClick={handleAddFriend}
+          >
+            Agregar Amigo
+          </Button>
+        ))}
+      
 
       {/* Mostrar alerta de la solicitud de amistad */}
       {friendshipStatus && (
         <Alert severity={alertType} style={{ marginTop: '20px' }}>
           {friendshipStatus}
         </Alert>
+      )}
+
+      {/* Mostrar el ID del evento de la amistad si existe */}
+      {event && (
+        <Typography variant="body1" style={{ marginTop: '20px' }}>
+          Primer evento como amigos: {event.name}
+        </Typography>
       )}
     </Container>
   );

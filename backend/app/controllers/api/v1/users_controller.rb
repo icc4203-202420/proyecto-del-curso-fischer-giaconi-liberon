@@ -10,7 +10,17 @@ class API::V1::UsersController < ApplicationController
   end
 
   def show
-    render json: @user, include: [:address, :reviews, :friendships]
+    @friendship = Friendship.where(user_id: params['id'], friend_id: params['current_user']).first()
+    if @friendship
+      @event = Event.where(id: @friendship.event_id).first()
+      render json: {
+        user: @user.as_json(include: [:address, :reviews, :friendships]),
+        friendship: @friendship,
+        event: @event,
+      }
+    else
+      render json: @user, include: [:address, :reviews, :friendships]
+    end
   end
 
   def create
