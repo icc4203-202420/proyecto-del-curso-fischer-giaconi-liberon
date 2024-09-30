@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, Avatar, CircularProgress, Button, Alert } from '@mui/material';
+import { Container, Typography, Avatar, CircularProgress, Button, Alert, TextField, Autocomplete } from '@mui/material';
 
 const User = () => {
   const { id } = useParams(); // Obtiene el ID del usuario de la URL
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [friendshipStatus, setFriendshipStatus] = useState(null); // Para manejar el estado de la solicitud de amistad
-  const [alertType, setAlertType] = useState(''); // Estado para manejar el tipo de alerta
+  const [friendshipStatus, setFriendshipStatus] = useState(null);
+  const [alertType, setAlertType] = useState('');
   const [event, setEvent] = useState(null);
   const [friendship, setFriendship] = useState(null);
+  const [eventId, setEventId] = useState(null);
+  const [sharedEvents, setSharedEvents] = useState([]);
 
-  const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null; // Obtener usuario actual
+  const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
-  // Función para manejar solicitud de amistad
   const handleAddFriend = async () => {
     const token = localStorage.getItem('token');
 
@@ -24,11 +25,19 @@ const User = () => {
       return;
     }
 
+    if (!eventId) {
+      setFriendshipStatus('Debes especificar un evento.');
+      setAlertType('error');
+      return;
+    }
+
     try {
       const response = await axios.post(
-        `http://127.0.0.1:3001/api/v1/users/${id}/friendships`, {
+        `http://127.0.0.1:3001/api/v1/users/${id}/friendships`,
+        {
           friendship: {
-            friend_id: currentUser.id, // ID del usuario logueado
+            friend_id: currentUser.id,
+            event_id: eventId
           }
         },
         {
@@ -53,15 +62,15 @@ const User = () => {
           params: {
             current_user: currentUser.id,
           }
-        }); // Asegúrate de que tu API tenga esta ruta
-        // console.log(response.data)
+        });
+        console.log(response.data);
         if (response.data.friendship) {
           setEvent(response.data.event);
           setUser(response.data.user);
           setFriendship(response.data.friendship);
-          console.log(response.data.friendship)
         } else {
-          setUser(response.data);
+          setUser(response.data.user);
+          setSharedEvents(response.data.events);
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -82,7 +91,7 @@ const User = () => {
   }
 
   if (!user) {
-    return <Typography variant="h6">User not found</Typography>; // Mensaje si no se encuentra el usuario
+    return <Typography variant="h6">User not found</Typography>;
   }
 
   return (
@@ -90,29 +99,37 @@ const User = () => {
       <Avatar src={user.image_url} alt={user.first_name} style={{ width: 100, height: 100, margin: 'auto' }} />
       <Typography variant="h4">{`${user.first_name} ${user.last_name}`}</Typography>
       <Typography variant="body1">Handle: {user.handle}</Typography>
-      
-      {/* Mostrar botón solo si el ID del usuario logueado es diferente del ID de la URL */}
+
       {!friendship && (
         currentUser && currentUser.id !== parseInt(id) && (
-          <Button 
-            variant="contained" 
-            color="primary" 
-            style={{ marginTop: '20px' }} 
-            onClick={handleAddFriend}
-          >
-            Agregar Amigo
-          </Button>
-        ))}
-      
+          <>
+            <Autocomplete
+              options={sharedEvents}
+              getOptionLabel={(option) => option.name} // Supone que el evento tiene un atributo 'name'
+              onChange={(event, value) => setEventId(value ? value.id : null)} // Suponiendo que el evento tiene un atributo 'id'
+              renderInput={(params) => (
+                <TextField {...params} label="Selecciona un Evento" variant="outlined" style={{ marginTop: '20px' }} fullWidth />
+              )}
+              style={{ marginTop: '20px' }}
+            />
+            <Button 
+              variant="contained" 
+              color="primary" 
+              style={{ marginTop: '20px' }} 
+              onClick={handleAddFriend}
+            >
+              Agregar Amigo
+            </Button>
+          </>
+        )
+      )}
 
-      {/* Mostrar alerta de la solicitud de amistad */}
       {friendshipStatus && (
         <Alert severity={alertType} style={{ marginTop: '20px' }}>
           {friendshipStatus}
         </Alert>
       )}
 
-      {/* Mostrar el ID del evento de la amistad si existe */}
       {event && (
         <Typography variant="body1" style={{ marginTop: '20px' }}>
           Primer evento como amigos: {event.name}
