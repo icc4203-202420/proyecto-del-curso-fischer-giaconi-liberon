@@ -10,6 +10,7 @@ class API::V1::UsersController < ApplicationController
   end
 
   def show
+    puts(params)
     @friendship = Friendship.where(user_id: params['id'], friend_id: params['current_user']).first()
     if @friendship
       @event = Event.where(id: @friendship.event_id).first()
@@ -19,7 +20,11 @@ class API::V1::UsersController < ApplicationController
         event: @event,
       }
     else
-      render json: @user, include: [:address, :reviews, :friendships]
+      @events = Event.joins(:attendances).joins("INNER JOIN attendances AS second_attendances ON events.id = second_attendances.event_id").where(attendances: { user_id: params['current_user'] }).where("second_attendances.user_id = ?", params['id'])
+      render json: {
+        user: @user.as_json(include: [:address, :reviews, :friendships]),
+        events: @events,
+      }
     end
   end
 
@@ -53,11 +58,27 @@ class API::V1::UsersController < ApplicationController
 
   #POST friendships
   def create_friendship
-    @friendship = @user.friendships.new(friendship_params)
-    if @friendship.save
-      render json: @friendship, status: :created
+    if friendship_params['bar_id']
+      @friendship = @user.friendships.new(friendship_params)
+      if @friendship.save
+        render json: @friendship, status: :created
+      else
+        render json: @friendship.errors, status: :unprocessable_entity
+      end
     else
-      render json: @friendship.errors, status: :unprocessable_entity
+      event_id = friendship_params['event_id']
+      bar_id = Event.find(event_id).bar_id
+      id = params['id']
+      puts(id)
+      puts(friendship_params['friend_id'])
+      puts(bar_id)
+      puts(event_id)
+      @friendship = @user.friendships.new(user_id: params['id'], friend_id: friendship_params['friend_id'], bar_id: bar_id, event_id: event_id)
+      if @friendship.save
+        render json: @friendship, status: :created
+      else
+        render json: @friendship.errors, status: :unprocessable_entity
+      end
     end
   end
 
