@@ -37,9 +37,7 @@ const BeerReview = () => {
     }, [id]);
 
     const handleNewReview = (newReview) => {
-        console.log('NewReview:', newReview.user);
-        setReviews((prevReviews) => [...prevReviews, newReview]);
-        console.log('AllReviews:', reviews);
+        setReviews((prevReviews) => [newReview,...prevReviews]);
         setTabIndex(0); 
     };
 
