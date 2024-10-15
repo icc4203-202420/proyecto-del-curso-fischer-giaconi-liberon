@@ -24,7 +24,8 @@ class API::V1::ReviewsController < ApplicationController
     @review = @user.reviews.build(id: params[:id], rating: params[:review][:rating], text: params[:review][:text], beer_id: @beer.id)
     @review.user = User.find(params[:user_id])
     if @review.save
-      render json: @review, status: :created, location: api_v1_review_url(@review)
+      puts("HOLAAAA ", @review.user)
+      render json: @review.as_json(include: :user), status: :created, location: api_v1_review_url(@review)
     else
       render json: @review.errors, status: :unprocessable_entity
     end
