@@ -31,7 +31,7 @@ const BeerDetail = () => {
             }
         };
         fetchBeerDetails();
-    }, [id]);
+    }, );
 
     if (loading) {
         return (
@@ -63,7 +63,7 @@ const BeerDetail = () => {
                     <Text style={styles.detail}><strong>Alcohol Level:</strong> {beer.alcohol}</Text>
                     <Text style={styles.detail}><strong>BLG:</strong> {beer.blg}</Text>
                     <Text style={styles.detail}>
-                        <strong>Average Rating:</strong> {beer.avg_rating ? beer.avg_rating.toFixed(2) : 'No ratings yet'}
+                        <strong>Average Rating:</strong> {beer.avg_rating ? beer.avg_rating.toFixed(1) : 'No ratings yet'}
                     </Text>
 
                     {brewery && (

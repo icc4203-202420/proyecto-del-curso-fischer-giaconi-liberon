@@ -31,7 +31,7 @@ def show
       thumbnail_url: @beer.image.attached? ? url_for(@beer.thumbnail) : nil
     }),
     brewery: @brewery.as_json,
-    bars: @bars.as_json(only: [:id, :name, :address]),
+    bars: @bars.as_json(),
     reviews: @reviews.as_json(include: { user: { only: [:id, :handle] } }, only: [:id, :text, :rating, :created_at])
   }
 
