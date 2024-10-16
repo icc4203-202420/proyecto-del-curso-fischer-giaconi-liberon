@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, Alert, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
@@ -61,28 +61,24 @@ const LogIn = ({ onLogin = () => {} }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-
+      <Text style={styles.title}>Log In</Text>
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {successMessage ? <Text style={styles.success}>{successMessage}</Text> : null}
-
       <TextInput
         style={styles.input}
         placeholder="Email"
-        onChangeText={text => handleChange('email', text)}
         value={formData.email}
+        onChangeText={(value) => handleChange('email', value)}
         keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
-        onChangeText={text => handleChange('password', text)}
         value={formData.password}
-        secureTextEntry={true}
+        onChangeText={(value) => handleChange('password', value)}
+        secureTextEntry
       />
-
-      <Button title="Log In" onPress={handleSubmit} color="#A020F0" />
-
+      <Button title="Log In" onPress={handleSubmit} color="#c0874f" />
       <Text style={styles.signupText} onPress={() => navigation.navigate('SignUp')}>
         Don't have an account? Sign Up
       </Text>
@@ -95,22 +91,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f6e0c7',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    // fontFamily: 'Times New Roman',
+    color: '#7b4b1e',
+  },
+  image: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ced4da',
+    borderColor: '#ccc',
     padding: 10,
-    marginBottom: 15,
+    marginVertical: 10,
     borderRadius: 5,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff8e1',
   },
   error: {
     color: 'red',
@@ -123,9 +125,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signupText: {
-    color: '#007BFF',
     textAlign: 'center',
-    marginTop: 15,
+    marginTop: 20,
+    color: '#7b4b1e',
+    textDecorationLine: 'underline',
   },
 });
 

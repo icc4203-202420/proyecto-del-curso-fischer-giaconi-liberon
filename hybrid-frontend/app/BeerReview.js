@@ -8,7 +8,7 @@ import { API_URL } from '@env';
 const BeerReview = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { id } = route.params; // Obtener el id desde los parámetros de la ruta
+    const { id } = route.params;
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env';
 
@@ -37,7 +37,7 @@ const BeerDetail = () => {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color="#A020F0" />
             </View>
         );
     }
@@ -52,6 +52,11 @@ const BeerDetail = () => {
 
     return (
         <ScrollView style={styles.container}>
+            {/* Back Button */}
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+                    
             {beer ? (
                 <>
                     <Text style={styles.title}>Beer Details</Text>
@@ -85,11 +90,13 @@ const BeerDetail = () => {
                     ) : (
                         <Text style={styles.detail}>No bars serving this beer.</Text>
                     )}
-                    <Button 
-                        title="View Reviews" 
+                    
+                    <TouchableOpacity 
+                        style={styles.reviewButton} 
                         onPress={() => navigation.navigate('BeerReview', { id })}
-                        color="#A020F0"
-                    />
+                    >
+                        <Text style={styles.reviewButtonText}>View Reviews</Text>
+                    </TouchableOpacity>
                 </>
             ) : (
                 <Text style={styles.detail}>No details available for this beer.</Text>
@@ -102,17 +109,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#fff',
+        backgroundColor: '#ffe5b4',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#ffe5b4',
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#ffe5b4',
     },
     errorText: {
         color: 'red',
@@ -121,10 +130,34 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: '#6e4c3e',
     },
     detail: {
         fontSize: 16,
         marginBottom: 8,
+        color: '#5d3a29',
+    },
+    backButton: {
+        padding: 10,
+        backgroundColor: '#c0874f',
+        borderRadius: 5,
+        marginBottom: 16,
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 16,
+    },
+    reviewButton: {
+        backgroundColor: '#c0874f',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    reviewButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 

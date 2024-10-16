@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, Alert, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { API_URL } from '@env';
+import { useNavigation } from '@react-navigation/native';
 
 const SignUp = () => {
+  const navigation = useNavigation();
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -54,6 +56,8 @@ const SignUp = () => {
         setSuccessMessage(data.status.message);
         setErrorMessage('');
         Alert.alert('Success', data.status.message);
+        
+        navigation.navigate('Home');
       } else {
         const errorMsg = data.status?.message || 'An error occurred.';
         setErrorMessage(errorMsg);
@@ -72,6 +76,11 @@ const SignUp = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
+
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
 
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       {successMessage ? <Text style={styles.success}>{successMessage}</Text> : null}
@@ -142,7 +151,10 @@ const SignUp = () => {
         keyboardType="numeric"
       />
 
-      <Button title="Sign Up" onPress={handleSubmit} color="#007BFF" />
+      <Button title="Sign Up" onPress={handleSubmit} color="#c0874f" />
+      <Text style={styles.loginText} onPress={() => navigation.navigate('LogIn')}>
+        Already have an account? Log In
+      </Text>
     </View>
   );
 };
@@ -152,22 +164,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f6e0c7',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    // fontFamily: 'Times New Roman',
+    color: '#7b4b1e',
+  },
+  image: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ced4da',
+    borderColor: '#ccc',
     padding: 10,
-    marginBottom: 15,
+    marginVertical: 10,
     borderRadius: 5,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff8e1',
+  },
+  backButton: {
+    backgroundColor: '#c0874f',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   error: {
     color: 'red',
@@ -178,6 +207,12 @@ const styles = StyleSheet.create({
     color: 'green',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  loginText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#7b4b1e',
+    textDecorationLine: 'underline',
   },
 });
 
