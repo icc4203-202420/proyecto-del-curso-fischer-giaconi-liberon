@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, Button, StyleSheet, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { API_URL } from '@env';
 
 const BeerDetail = () => {
     const route = useRoute();
@@ -15,7 +16,7 @@ const BeerDetail = () => {
     useEffect(() => {
         const fetchBeerDetails = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:3001/api/v1/beers/${id}`);
+                const response = await fetch(`${API_URL}/api/v1/beers/${id}`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { View, Text, Button, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import AddReview from './AddReview';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { API_URL } from '@env';
 
 const BeerReview = () => {
     const route = useRoute();
@@ -23,7 +24,7 @@ const BeerReview = () => {
             }
 
             try {
-                const response = await axios.get(`http://127.0.0.1:3001/api/v1/beers/${id}`);
+                const response = await axios.get(`${API_URL}/api/v1/beers/${id}`);
                 setReviews(response.data.reviews);
             } catch (error) {
                 setError("Error fetching reviews");
