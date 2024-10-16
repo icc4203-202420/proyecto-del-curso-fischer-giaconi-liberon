@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '@env';
 
-const LogIn = ({ onLogin = () => console.log('test') }) => {
+const LogIn = ({ onLogin = () => {} }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -33,8 +33,6 @@ const LogIn = ({ onLogin = () => console.log('test') }) => {
       });
 
       const data = await response.json();
-      console.log('Usuario:', data.status.data.user);
-      console.log('Token:', data.status.token);
 
       if (response.ok) {
         const token = data.status.token;
