@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert, StyleSheet } from 'react-native';
+import { API_URL } from '@env';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:3001/api/v1/signup', {
+      const response = await fetch(`${API_URL}/api/v1/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily: 'Times New Roman',
+    // fontFamily: 'Times New Roman',
   },
   input: {
     borderWidth: 1,

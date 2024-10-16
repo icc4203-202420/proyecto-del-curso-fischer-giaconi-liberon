@@ -3,6 +3,7 @@ import { View, Button, TextInput, Text, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '@env';
 
 const AddReview = ({ id, onNewReview }) => {
     const [rating, setRating] = useState(3);
@@ -21,7 +22,7 @@ const AddReview = ({ id, onNewReview }) => {
 
         try {
             const response = await axios.post(
-                `http://127.0.0.1:3001/api/v1/beers/${id}/reviews`,
+                `${API_URL}/api/v1/beers/${id}/reviews`,
                 {
                     review: {
                         text: reviewText,
