@@ -59,7 +59,7 @@ const Beer = () => {
                                 <Text style={styles.cardTitle}>{item.name}</Text>
                                 <Text style={styles.cardDetail}>Yeast: {item.yeast}</Text>
                                 <Text style={styles.cardDetail}>Malts: {item.malts}</Text>
-                                <Text style={styles.cardDetail}>Alcohol level: {item.alcohol}%</Text>
+                                <Text style={styles.cardDetail}>Alcohol level: {item.alcohol}</Text>
                             </View>
                         </TouchableOpacity>
                     )}
