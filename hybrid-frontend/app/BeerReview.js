@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { View, Text, Button, ScrollView, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, Button, ScrollView, ActivityIndicator, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import AddReview from './AddReview';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env';
@@ -16,7 +16,6 @@ const BeerReview = () => {
 
     useEffect(() => {
         const fetchReviews = async () => {
-            // Comprobar si el id es válido
             if (!id) {
                 setError("No beer ID provided.");
                 setLoading(false);
@@ -38,14 +37,14 @@ const BeerReview = () => {
     }, [id]);
 
     const handleNewReview = (newReview) => {
-        setReviews((prevReviews) => [newReview,...prevReviews]);
-        setTabIndex(0); 
+        setReviews((prevReviews) => [newReview, ...prevReviews]);
+        setTabIndex(0);
     };
 
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#A020F0" />
+                <ActivityIndicator size="large" color="#c0874f" />
             </View>
         );
     }
@@ -60,11 +59,9 @@ const BeerReview = () => {
 
     return (
         <View style={styles.container}>
-
             {tabIndex === 0 ? (
                 <ScrollView>
                     <Text style={styles.title}>Reviews</Text>
-
                     {reviews.length > 0 ? (
                         reviews.map((review, index) => (
                             <View key={index} style={styles.reviewContainer}>
@@ -79,9 +76,16 @@ const BeerReview = () => {
             ) : (
                 <AddReview id={id} onNewReview={handleNewReview} />
             )}
-            <Button title={tabIndex === 0 ? "Add Review" : "View Reviews"} onPress={() => setTabIndex(tabIndex === 0 ? 1 : 0)} color="#A020F0" />
 
-            <Button title="Back to Beers" onPress={() => navigation.goBack()} color="#A020F0"/>
+            {/* Button for toggling between reviews and add review form */}
+            <TouchableOpacity
+                style={styles.toggleButton}
+                onPress={() => setTabIndex(tabIndex === 0 ? 1 : 0)}
+            >
+                <Text style={styles.buttonText}>
+                    {tabIndex === 0 ? "Add Review" : "View Reviews"}
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -90,6 +94,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        backgroundColor: '#ffe5b4',
     },
     loadingContainer: {
         flex: 1,
@@ -108,11 +113,42 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: '#6e4c3e',
+        textAlign: 'center',
     },
     reviewContainer: {
+        backgroundColor: '#fff2e5',
+        padding: 16,
         marginBottom: 16,
+        borderRadius: 10,
+        borderLeftWidth: 5,
+        borderColor: '#c0874f',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
     },
     reviewUser: {
+        fontWeight: 'bold',
+        color: '#5d3a29',
+        marginBottom: 8,
+    },
+    toggleButton: {
+        backgroundColor: '#c0874f',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    backButton: {
+        backgroundColor: '#c0874f',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 18,
         fontWeight: 'bold',
     },
 });

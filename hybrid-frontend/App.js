@@ -5,7 +5,8 @@ import Beer from './app/Beer';
 import BeerDetail from './app/BeerDetail';
 import BeerReview from './app/BeerReview';
 import NavigationBar from './app/NavBar';
-import BeerTabs from './app/BeerTabs'
+import BeerTabs from './app/BeerTabs';
+import SignUp from './app/SignUp'
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="BeerDetail" component={BeerDetail} />
         <Stack.Screen name="BeerReview" component={BeerReview} />
         <Stack.Screen name="BeerTabs" component={BeerTabs} />
+        <Stack.Screen name="SignUp" component={SignUp} />
       </Stack.Navigator>
     </NavigationContainer>
   );

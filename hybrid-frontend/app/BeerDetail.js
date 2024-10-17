@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const BeerDetail = () => {
     const route = useRoute();
     const navigation = useNavigation();
-    const { id } = route.params; 
+    const { id } = route.params;
     const [beer, setBeer] = useState(null);
     const [brewery, setBrewery] = useState(null);
     const [bars, setBars] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); 
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchBeerDetails = async () => {
@@ -26,7 +27,7 @@ const BeerDetail = () => {
                 setBars(data.bars);
             } catch (error) {
                 console.error("Error fetching beer details:", error);
-                setError("Error fetching beer details. Please try again later."); 
+                setError("Error fetching beer details. Please try again later.");
             } finally {
                 setLoading(false);
             }
@@ -52,39 +53,61 @@ const BeerDetail = () => {
 
     return (
         <ScrollView style={styles.container}>
-
-                    
             {beer ? (
                 <>
-                    <Text style={styles.title}>Beer Details</Text>
 
+                    {/* Beer Details */}
                     <View style={styles.detailBox}>
-                        <Text style={styles.detail}><strong>Name:</strong> {beer.name}</Text>
-                        <Text style={styles.detail}><strong>Style:</strong> {beer.style}</Text>
-                        <Text style={styles.detail}><strong>Hop:</strong> {beer.hop}</Text>
-                        <Text style={styles.detail}><strong>Yeast:</strong> {beer.yeast}</Text>
-                        <Text style={styles.detail}><strong>Malts:</strong> {beer.malts}</Text>
-                        <Text style={styles.detail}><strong>IBU:</strong> {beer.ibu}</Text>
-                        <Text style={styles.detail}><strong>Alcohol Level:</strong> {beer.alcohol}</Text>
-                        <Text style={styles.detail}><strong>BLG:</strong> {beer.blg}</Text>
+                        <Text style={styles.sectionTitle}>Beer Info</Text>
                         <Text style={styles.detail}>
-                            <strong>Average Rating:</strong> {beer.avg_rating ? beer.avg_rating.toFixed(1) : 'No ratings yet'}
+                            <MaterialCommunityIcons name="beer" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Style:</Text> {beer.style}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="leaf" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Hop:</Text> {beer.hop}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="yeast" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Yeast:</Text> {beer.yeast}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="grain" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Malts:</Text> {beer.malts}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="gauge" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> IBU:</Text> {beer.ibu}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="glass-pint-outline" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Alcohol Level:</Text> {beer.alcohol}%
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="water-outline" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> BLG:</Text> {beer.blg}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <MaterialCommunityIcons name="star-outline" size={20} color="#c0874f" />
+                            <Text style={styles.bold}> Average Rating:</Text> {beer.avg_rating ? beer.avg_rating.toFixed(1) : 'No ratings yet'}
                         </Text>
 
                         {brewery && (
                             <Text style={styles.detail}>
-                                <strong>Brewery:</strong> {brewery.name} (Established: {brewery.estdate})
+                                <MaterialCommunityIcons name="factory" size={20} color="#c0874f" />
+                                <Text style={styles.bold}> Brewery:</Text> {brewery.name} (Established: {brewery.estdate})
                             </Text>
                         )}
                     </View>
 
+                    {/* Bars Serving the Beer */}
                     <View style={styles.detailBox}>
+                        <Text style={styles.sectionTitle}>Bars Serving This Beer</Text>
                         {bars.length > 0 ? (
                             <>
-                                <Text style={styles.detail}><strong>Bars Serving This Beer:</strong></Text>
                                 {bars.map(bar => (
                                     <Text key={bar.id} style={styles.detail}>
-                                        - {bar.name} (Location: {bar.latitude}, {bar.longitude})
+                                        <MaterialCommunityIcons name="map-marker" size={20} color="#c0874f" /> {bar.name} (Location: {bar.latitude}, {bar.longitude})
                                     </Text>
                                 ))}
                             </>
@@ -122,11 +145,18 @@ const styles = StyleSheet.create({
         color: 'red',
     },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 16,
         textAlign: 'center',
         color: '#6e4c3e',
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#c0874f',
+        textAlign: 'center',
     },
     detailBox: {
         backgroundColor: '#fff2e5',
@@ -138,23 +168,18 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         alignItems: 'center',
+        borderLeftWidth: 5,
+        borderColor: '#c0874f',
     },
     detail: {
         fontSize: 16,
         color: '#5d3a29',
         marginBottom: 8,
-        textAlign: 'center',
+        textAlign: 'left',
+        width: '100%',
     },
-    backButton: {
-        padding: 10,
-        backgroundColor: '#c0874f',
-        borderRadius: 5,
-        marginBottom: 16,
-        alignSelf: 'center',
-    },
-    backButtonText: {
-        color: '#fff',
-        fontSize: 16,
+    bold: {
+        fontWeight: 'bold',
     },
     reviewButton: {
         backgroundColor: '#c0874f',

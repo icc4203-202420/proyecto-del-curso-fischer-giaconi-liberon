@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
+import { BottomNavigation } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Home from './Home';
 import Beer from './Beer';
@@ -16,6 +16,7 @@ export default function NavigationBar() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabLabel,
       }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
@@ -40,7 +41,7 @@ export default function NavigationBar() {
           renderIcon={({ route, focused, color }) => {
             const { options } = descriptors[route.key];
             if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
+              return options.tabBarIcon({ focused, color, size: 28 });
             }
 
             return null;
@@ -56,6 +57,8 @@ export default function NavigationBar() {
 
             return label;
           }}
+          activeColor="#e0a64b" 
+          inactiveColor="#593e21" 
         />
       )}
     >
@@ -95,8 +98,14 @@ export default function NavigationBar() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#c0874f',
+    backgroundColor: '#8b5e34', 
     borderTopWidth: 0,
-    elevation: 10,
+    elevation: 8, 
+    height: 60,
+  },
+  tabLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
 });

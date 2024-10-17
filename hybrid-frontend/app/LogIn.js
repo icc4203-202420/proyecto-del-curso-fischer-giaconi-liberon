@@ -91,28 +91,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#f6e0c7',
+    backgroundColor: '#ffe5b4',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#7b4b1e',
-  },
-  image: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-    marginBottom: 20,
+    color: '#8b5e34',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
+    borderColor: '#c0874f',
+    padding: 12,
     marginVertical: 10,
-    borderRadius: 5,
-    backgroundColor: '#fff8e1',
+    borderRadius: 8,
+    backgroundColor: '#fff8e1', 
   },
   error: {
     color: 'red',
@@ -127,7 +121,7 @@ const styles = StyleSheet.create({
   signupText: {
     textAlign: 'center',
     marginTop: 20,
-    color: '#7b4b1e',
+    color: '#8b5e34', 
     textDecorationLine: 'underline',
   },
 });
