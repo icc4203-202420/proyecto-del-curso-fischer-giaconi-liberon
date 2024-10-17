@@ -29,7 +29,9 @@ const Beer = () => {
     }, []);
 
     const handleCardClick = (id) => {
-        navigation.navigate('BeerDetail', { id });
+        navigation.navigate('BeerTabs', { id });
+
+        // navigation.navigate('BeerDetail', { id });
     };
 
     const filteredBeers = beers.filter(beer =>

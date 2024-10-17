@@ -52,51 +52,46 @@ const BeerDetail = () => {
 
     return (
         <ScrollView style={styles.container}>
-            {/* Back Button */}
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
+
                     
             {beer ? (
                 <>
                     <Text style={styles.title}>Beer Details</Text>
-                    <Text style={styles.detail}><strong>Name:</strong> {beer.name}</Text>
-                    <Text style={styles.detail}><strong>Style:</strong> {beer.style}</Text>
-                    <Text style={styles.detail}><strong>Hop:</strong> {beer.hop}</Text>
-                    <Text style={styles.detail}><strong>Yeast:</strong> {beer.yeast}</Text>
-                    <Text style={styles.detail}><strong>Malts:</strong> {beer.malts}</Text>
-                    <Text style={styles.detail}><strong>IBU:</strong> {beer.ibu}</Text>
-                    <Text style={styles.detail}><strong>Alcohol Level:</strong> {beer.alcohol}</Text>
-                    <Text style={styles.detail}><strong>BLG:</strong> {beer.blg}</Text>
-                    <Text style={styles.detail}>
-                        <strong>Average Rating:</strong> {beer.avg_rating ? beer.avg_rating.toFixed(1) : 'No ratings yet'}
-                    </Text>
 
-                    {brewery && (
+                    <View style={styles.detailBox}>
+                        <Text style={styles.detail}><strong>Name:</strong> {beer.name}</Text>
+                        <Text style={styles.detail}><strong>Style:</strong> {beer.style}</Text>
+                        <Text style={styles.detail}><strong>Hop:</strong> {beer.hop}</Text>
+                        <Text style={styles.detail}><strong>Yeast:</strong> {beer.yeast}</Text>
+                        <Text style={styles.detail}><strong>Malts:</strong> {beer.malts}</Text>
+                        <Text style={styles.detail}><strong>IBU:</strong> {beer.ibu}</Text>
+                        <Text style={styles.detail}><strong>Alcohol Level:</strong> {beer.alcohol}</Text>
+                        <Text style={styles.detail}><strong>BLG:</strong> {beer.blg}</Text>
                         <Text style={styles.detail}>
-                            <strong>Brewery:</strong> {brewery.name} (Established: {brewery.estdate})
+                            <strong>Average Rating:</strong> {beer.avg_rating ? beer.avg_rating.toFixed(1) : 'No ratings yet'}
                         </Text>
-                    )}
 
-                    {bars.length > 0 ? (
-                        <View>
-                            <Text style={styles.detail}><strong>Bars Serving This Beer:</strong></Text>
-                            {bars.map(bar => (
-                                <Text key={bar.id} style={styles.detail}>
-                                    - {bar.name} (Location: {bar.latitude}, {bar.longitude})
-                                </Text>
-                            ))}
-                        </View>
-                    ) : (
-                        <Text style={styles.detail}>No bars serving this beer.</Text>
-                    )}
-                    
-                    <TouchableOpacity 
-                        style={styles.reviewButton} 
-                        onPress={() => navigation.navigate('BeerReview', { id })}
-                    >
-                        <Text style={styles.reviewButtonText}>View Reviews</Text>
-                    </TouchableOpacity>
+                        {brewery && (
+                            <Text style={styles.detail}>
+                                <strong>Brewery:</strong> {brewery.name} (Established: {brewery.estdate})
+                            </Text>
+                        )}
+                    </View>
+
+                    <View style={styles.detailBox}>
+                        {bars.length > 0 ? (
+                            <>
+                                <Text style={styles.detail}><strong>Bars Serving This Beer:</strong></Text>
+                                {bars.map(bar => (
+                                    <Text key={bar.id} style={styles.detail}>
+                                        - {bar.name} (Location: {bar.latitude}, {bar.longitude})
+                                    </Text>
+                                ))}
+                            </>
+                        ) : (
+                            <Text style={styles.detail}>No bars serving this beer.</Text>
+                        )}
+                    </View>
                 </>
             ) : (
                 <Text style={styles.detail}>No details available for this beer.</Text>
@@ -130,18 +125,32 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
+        textAlign: 'center',
         color: '#6e4c3e',
+    },
+    detailBox: {
+        backgroundColor: '#fff2e5',
+        padding: 16,
+        marginBottom: 16,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        alignItems: 'center',
     },
     detail: {
         fontSize: 16,
-        marginBottom: 8,
         color: '#5d3a29',
+        marginBottom: 8,
+        textAlign: 'center',
     },
     backButton: {
         padding: 10,
         backgroundColor: '#c0874f',
         borderRadius: 5,
         marginBottom: 16,
+        alignSelf: 'center',
     },
     backButtonText: {
         color: '#fff',
