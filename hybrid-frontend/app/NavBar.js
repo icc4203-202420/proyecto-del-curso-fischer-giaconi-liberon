@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Home from './Home';
 import Beer from './Beer';
 import LogIn from './LogIn';
+import UserProfile from './UserProfile';
 
 const Tab = createBottomTabNavigator();
 
@@ -84,7 +85,7 @@ export default function NavigationBar() {
       />
       <Tab.Screen
         name="Account"
-        component={LogIn}
+        component={UserProfile}
         options={{
           tabBarLabel: 'Account',
           tabBarIcon: ({ color, size }) => (

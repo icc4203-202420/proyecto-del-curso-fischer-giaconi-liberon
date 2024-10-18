@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   backButtonText: {
-    color: '#fff',
+    color: '#c0874f',
     fontSize: 16,
   },
   title: {
