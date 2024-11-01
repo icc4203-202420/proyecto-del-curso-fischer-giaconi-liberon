@@ -10,7 +10,9 @@ import SignUp from './app/SignUp';
 import LogIn from './app/LogIn';
 import SearchUserBar from './app/UserSearch';
 import Events from './app/Events';
-import Bars from './app/Bar'
+import Bars from './app/Bar';
+import Attendance from './app/Attendance';
+import AddAttendance from './app/AddAttendance';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +30,8 @@ export default function App() {
         <Stack.Screen name="SearchUser" component={SearchUserBar} />
         <Stack.Screen name="Events" component={Events} />
         <Stack.Screen name="Bar" component={Bars} />
+        <Stack.Screen name="Attendance" component={Attendance} />
+        <Stack.Screen name="AddAttendance" component={AddAttendance} />
       </Stack.Navigator>
     </NavigationContainer>
   );

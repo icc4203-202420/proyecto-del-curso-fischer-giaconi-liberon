@@ -12,6 +12,10 @@ const Events = () => {
     const [openUploadModal, setOpenUploadModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [description, setDescription] = useState('');
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    const [taggedUsers, setTaggedUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
     const route = useRoute();
     const navigation = useNavigation();
     const { bar_id } = route.params;
@@ -36,6 +40,39 @@ const Events = () => {
         fetchEvents();
     }, [bar_id]);
 
+    const fetchAvailableUsers = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/api/v1/users`);
+            setAvailableUsers(response.data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAvailableUsers();
+    }, []);
+
+    const handleSearch = (text) => {
+        setSearchText(text);
+        const filtered = availableUsers.filter(user => 
+            user.handle.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredUsers(filtered);
+    };
+
+    const addTaggedUser = (user) => {
+        if (!taggedUsers.some(taggedUser => taggedUser.id === user.id)) {
+            setTaggedUsers([...taggedUsers, user]);
+        }
+        setSearchText('');
+        setFilteredUsers([]);
+    };
+
+    const removeTaggedUser = (userId) => {
+        setTaggedUsers(taggedUsers.filter(user => user.id !== userId));
+    };
+
     const handleImageUpload = async (eventId) => {
         if (!selectedImage) {
             Alert.alert('Error', 'Por favor, selecciona una imagen antes de cargarla.');
@@ -50,6 +87,11 @@ const Events = () => {
         });
         formData.append('event_picture[event_id]', eventId);
         formData.append('event_picture[description]', description);
+        taggedUsers.forEach((user) => {
+            if (user.id) {
+                formData.append('event_picture[tagged_users][]', user.id);
+            }
+        });
 
         try {
             await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
@@ -61,6 +103,7 @@ const Events = () => {
             setOpenUploadModal(false);
             setSelectedImage(null);
             setDescription('');
+            setTaggedUsers([]);
         } catch (error) {
             console.error('Error uploading image:', error);
             Alert.alert('Error', 'No se pudo cargar la imagen.');
@@ -82,7 +125,6 @@ const Events = () => {
 
     return (
         <ScrollView style={styles.container}>
-            {/* Header with Back Button and Title */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Text style={styles.backButtonText}>← Back</Text>
@@ -102,7 +144,6 @@ const Events = () => {
                 )}
             />
 
-            {/* Modal for image upload */}
             <Modal
                 visible={openUploadModal}
                 animationType="slide"
@@ -116,6 +157,35 @@ const Events = () => {
                         value={description}
                         onChangeText={setDescription}
                     />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Buscar usuario para etiquetar"
+                        value={searchText}
+                        onChangeText={handleSearch}
+                    />
+                    {filteredUsers.length > 0 && (
+                        <View style={styles.dropdown}>
+                            {filteredUsers.map((user) => (
+                                <TouchableOpacity
+                                    key={user.id}
+                                    style={styles.dropdownItem}
+                                    onPress={() => addTaggedUser(user)}
+                                >
+                                    <Text>{user.handle}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
+                    <View style={styles.taggedUsersContainer}>
+                        {taggedUsers.map((user) => (
+                            <View key={user.id} style={styles.taggedUser}>
+                                <Text>{user.handle}</Text>
+                                <TouchableOpacity onPress={() => removeTaggedUser(user.id)}>
+                                    <MaterialCommunityIcons name="close" size={16} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </View>
                     <Button title="Seleccionar Imagen" onPress={pickImage} />
                     {selectedImage && (
                         <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
@@ -195,6 +265,21 @@ const styles = StyleSheet.create({
         width: '80%',
         height: 200,
         marginVertical: 16,
+    },
+    tagTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginVertical: 10,
+    },
+    userTag: {
+        padding: 10,
+        borderColor: '#c0874f',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginHorizontal: 5,
+    },
+    userTagSelected: {
+        backgroundColor: '#c0874f',
     },
 });
 
