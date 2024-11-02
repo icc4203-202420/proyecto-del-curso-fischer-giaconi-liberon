@@ -124,7 +124,6 @@ const Events = () => {
                 },
             });
             fetchEventPictures(eventId);
-            console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', response.data);
             setSelectedFile(null); // Reset selected file
             setDescription(''); // Reset description
             setTaggedUsers([]); // Reset tagged users

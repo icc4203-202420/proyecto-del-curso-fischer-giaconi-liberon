@@ -5,6 +5,7 @@ import { API_URL } from '@env';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -31,6 +32,9 @@ const Events = () => {
                 const response = await axios.get(`${API_URL}/api/v1/bars/${bar_id}/events`);
                 setEvents(response.data.events);
                 setBar(response.data.bar);
+                if (response.data.events.length > 0) {
+                    fetchEventPictures(response.data.events[0].id);
+                };
             } catch (error) {
                 console.error('Error fetching events:', error);
                 Alert.alert('Error', 'No se pudieron cargar los eventos.');
@@ -53,6 +57,15 @@ const Events = () => {
         fetchAvailableUsers();
     }, []);
 
+    const fetchEventPictures = async (eventId) => {
+        try {
+            const response = await axios.get(`${API_URL}/api/v1/event_pictures?event_id=${eventId}`);
+            // AGREGAR FUNCIONALIDAD PARA RENDERIZAR LAS IMÁGENES
+        } catch (error) {
+            console.error('Error fetching event pictures:', error);
+        }
+    };
+
     const handleSearch = (text) => {
         setSearchText(text);
         const filtered = availableUsers.filter(user => 
@@ -69,6 +82,16 @@ const Events = () => {
         setFilteredUsers([]);
     };
 
+    const base64ToBlob = async (base64, contentType = 'image/jpeg') => {
+        const byteCharacters = atob(base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        return new Blob([byteArray], { type: contentType });
+    };
+
     const removeTaggedUser = (userId) => {
         setTaggedUsers(taggedUsers.filter(user => user.id !== userId));
     };
@@ -79,13 +102,24 @@ const Events = () => {
             return;
         }
 
+        const auxUser = await AsyncStorage.getItem('user');
+        const currentUser = JSON.parse(auxUser);
+
+        const base64Image = selectedImage.replace(/^data:image\/\w+;base64,/, "");
+
+        const imageBlob = await base64ToBlob(base64Image, 'image/jpeg');
+        console.log(imageBlob);
+
         const formData = new FormData();
-        formData.append('event_picture[image]', {
-            uri: selectedImage,
-            type: 'image/jpeg',
-            name: 'event_picture.jpg',
-        });
+        // formData.append('event_picture[image]', {
+        //     uri: selectedImage,
+        //     type: 'image/jpeg',
+        //     name: 'event_picture.jpg',
+        // });
+        // formData.append('event_picture[image]', selectedImage);
+        formData.append('event_picture[image]', imageBlob, 'event_picture.jpg');
         formData.append('event_picture[event_id]', eventId);
+        formData.append('event_picture[user_id]', currentUser.id)
         formData.append('event_picture[description]', description);
         taggedUsers.forEach((user) => {
             if (user.id) {
