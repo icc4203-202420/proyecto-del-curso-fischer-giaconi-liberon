@@ -69,10 +69,6 @@ class API::V1::UsersController < ApplicationController
       event_id = friendship_params['event_id']
       bar_id = Event.find(event_id).bar_id
       id = params['id']
-      puts(id)
-      puts(friendship_params['friend_id'])
-      puts(bar_id)
-      puts(event_id)
       @friendship = @user.friendships.new(user_id: params['id'], friend_id: friendship_params['friend_id'], bar_id: bar_id, event_id: event_id)
       if @friendship.save
         render json: @friendship, status: :created

@@ -31,7 +31,7 @@ const UserSearch = () => {
     }, []);
 
     const handleUserClick = (userId) => {
-        navigation.navigate('UserDetail', { userId });
+        navigation.navigate('UserDetail', { userId: userId });
     };
 
     const filtered = filteredUsers.filter(user =>
