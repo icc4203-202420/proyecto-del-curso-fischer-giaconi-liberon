@@ -89,7 +89,17 @@ const Events = () => {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        return new Blob([byteArray], { type: contentType });
+        const blob = new Blob([byteArray], { type: contentType })
+        // console.log(blob);
+        return blob;
+    };
+
+    const uriToBlob = async (uri) => {
+        const response = await fetch(uri);
+        const auxBlob = await response.blob();
+        const blob = auxBlob;
+        // console.log(blob);
+        return blob;
     };
 
     const removeTaggedUser = (userId) => {
@@ -101,48 +111,93 @@ const Events = () => {
             Alert.alert('Error', 'Por favor, selecciona una imagen antes de cargarla.');
             return;
         }
-
-        const auxUser = await AsyncStorage.getItem('user');
-        const currentUser = JSON.parse(auxUser);
-
-        const base64Image = selectedImage.replace(/^data:image\/\w+;base64,/, "");
-
-        const imageBlob = await base64ToBlob(base64Image, 'image/jpeg');
-        console.log(imageBlob);
-
+    
+        const currentUser = JSON.parse(await AsyncStorage.getItem('user'));
         const formData = new FormData();
-        // formData.append('event_picture[image]', {
-        //     uri: selectedImage,
-        //     type: 'image/jpeg',
-        //     name: 'event_picture.jpg',
-        // });
-        // formData.append('event_picture[image]', selectedImage);
-        formData.append('event_picture[image]', imageBlob, 'event_picture.jpg');
-        formData.append('event_picture[event_id]', eventId);
-        formData.append('event_picture[user_id]', currentUser.id)
-        formData.append('event_picture[description]', description);
-        taggedUsers.forEach((user) => {
-            if (user.id) {
-                formData.append('event_picture[tagged_users][]', user.id);
-            }
+    
+        // Asegúrate de que el URI esté correctamente formateado
+        formData.append('event_picture[image]', {
+            uri: selectedImage,
+            name: 'image.jpg', // Asegúrate de usar un nombre de archivo correcto
+            type: 'image/jpeg', // El tipo de contenido que estás subiendo
         });
-
+        formData.append('event_picture[event_id]', eventId);
+        formData.append('event_picture[user_id]', currentUser.id);
+        formData.append('event_picture[description]', description);
+    
+        // Adjuntar usuarios etiquetados
+        taggedUsers.forEach((user) => {
+            formData.append('event_picture[tagged_users][]', user.id);
+        });
+    
         try {
-            await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
+            const response = await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            Alert.alert('Imagen cargada exitosamente');
+            Alert.alert('Imagen cargada exitosamente', `Imagen ID: ${response.data.id}`);
             setOpenUploadModal(false);
             setSelectedImage(null);
             setDescription('');
             setTaggedUsers([]);
         } catch (error) {
-            console.error('Error uploading image:', error);
-            Alert.alert('Error', 'No se pudo cargar la imagen.');
+            console.error('Error uploading image:', error.response.data);
+            Alert.alert('Error', 'No se pudo cargar la imagen. Intenta nuevamente.');
         }
     };
+
+    // const handleImageUpload = async (eventId) => {
+    //     if (!selectedImage) {
+    //         Alert.alert('Error', 'Por favor, selecciona una imagen antes de cargarla.');
+    //         return;
+    //     }
+    
+    //     const currentUser = JSON.parse(await AsyncStorage.getItem('user'));
+    //     let imageBlob;
+    
+    //     // Identificar si es base64 o un URI de archivo
+    //     if (selectedImage.startsWith('data:image')) {
+    //         // Eliminar el prefijo base64 `data:image/jpeg;base64,`
+    //         const base64Image = selectedImage.replace(/^data:image\/\w+;base64,/, "");
+    //         // Convertir base64 a Blob
+    //         imageBlob = await base64ToBlob(base64Image, 'image/jpeg');
+    //     } else {
+    //         // Convertir URI de archivo a Blob
+    //         imageBlob = await uriToBlob(selectedImage);
+    //     }
+
+    //     console.log(imageBlob);
+    
+    //     const formData = new FormData();
+        
+    //     // Adjuntar el archivo Blob al FormData
+    //     formData.append('event_picture[image]', imageBlob);
+    //     formData.append('event_picture[event_id]', eventId);
+    //     formData.append('event_picture[user_id]', currentUser.id);
+    //     formData.append('event_picture[description]', description);
+        
+    //     taggedUsers.forEach((user) => {
+    //         formData.append('event_picture[tagged_users][]', user.id);
+    //     });
+    
+    //     try {
+
+    //         await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
+    //             headers: {
+    //                 'Content-Type': 'multipart/form-data',
+    //             },
+    //         });
+    //         Alert.alert('Imagen cargada exitosamente');
+    //         setOpenUploadModal(false);
+    //         setSelectedImage(null);
+    //         setDescription('');
+    //         setTaggedUsers([]);
+    //     } catch (error) {
+    //         console.error('Error uploading image:', error);
+    //         Alert.alert('Error', 'No se pudo cargar la imagen.');
+    //     }
+    // };
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
