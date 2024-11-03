@@ -3,6 +3,7 @@ import { View, Button, TextInput, Text, StyleSheet, TouchableOpacity } from 'rea
 import Slider from '@react-native-community/slider';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { API_URL } from '@env';
 
 const AddReview = ({ id, onNewReview }) => {
@@ -16,8 +17,8 @@ const AddReview = ({ id, onNewReview }) => {
             return;
         }
 
-        const token = await AsyncStorage.getItem('token');
-        const aux_user = await AsyncStorage.getItem('user');
+        const token = await SecureStore.getItemAsync('token');
+        const aux_user = await SecureStore.getItemAsync('user');
         user = aux_user ? JSON.parse(aux_user) : null;
 
         try {

@@ -57,7 +57,7 @@ const SignUp = () => {
         setErrorMessage('');
         Alert.alert('Success', data.status.message);
         
-        navigation.navigate('Home');
+        navigation.navigate('LogIn');
       } else {
         const errorMsg = data.status?.message || 'An error occurred.';
         setErrorMessage(errorMsg);

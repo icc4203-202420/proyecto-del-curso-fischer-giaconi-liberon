@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -112,7 +113,7 @@ const Events = () => {
             return;
         }
     
-        const currentUser = JSON.parse(await AsyncStorage.getItem('user'));
+        const currentUser = JSON.parse(await SecureStore.getItemAsync('user'));
         const formData = new FormData();
     
         // Asegúrate de que el URI esté correctamente formateado
