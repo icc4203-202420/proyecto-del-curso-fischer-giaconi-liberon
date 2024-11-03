@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { AuthContext } from './AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export default function UserProfile({ navigation }) {
+  const { logout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     // Obtener los detalles del usuario desde AsyncStorage
     const fetchUser = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
+        const storedUser = await SecureStore.getItemAsync('user');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         } else {
@@ -26,9 +29,7 @@ export default function UserProfile({ navigation }) {
 
   const handleLogout = async () => {
     // Limpiar el token y la información del usuario
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('user');
-    console.log("Usuario ha cerrado sesión.");
+    await logout();
     // Redirigir al usuario a la pantalla de LogIn
     navigation.replace('LogIn');
   };

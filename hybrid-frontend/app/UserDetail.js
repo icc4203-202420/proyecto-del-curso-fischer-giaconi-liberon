@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { API_URL } from '@env';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
@@ -17,7 +18,7 @@ export default function UserDetial({ route }) {
   const [selectedEvent, setSelectedEvent] = useState([]);
 
   const getCurrentUser = async () => {
-    const auxUser = await AsyncStorage.getItem('user');
+    const auxUser = await SecureStore.getItemAsync('user');
     const currentUser = JSON.parse(auxUser);
     setCurrentUser(currentUser);
     return currentUser;
@@ -70,7 +71,7 @@ export default function UserDetial({ route }) {
 
     const handleFriendship = async () => {
         try {
-            const token = await AsyncStorage.getItem('token');
+            const token = await SecureStore.getItemAsync('token');
             const response = await axios.post(`${API_URL}/api/v1/users/${user.id}/friendships`,
                 {
                     friendship: {
@@ -100,7 +101,7 @@ export default function UserDetial({ route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Perfil del Usuario</Text>
+      <Text style={styles.title}>{user.first_name} {user.last_name}</Text>
       <Text style={styles.infoText}>ID: {user.id}</Text>
       <Text style={styles.infoText}>handle: {user.handle}</Text>
       <Text style={styles.infoText}>Email: {user.email}</Text>

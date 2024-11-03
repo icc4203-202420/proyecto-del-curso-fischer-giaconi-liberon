@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, TextInput, Button, Text, Alert, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from './AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { API_URL } from '@env';
 
 const LogIn = ({ onLogin = () => {} }) => {
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -36,8 +39,8 @@ const LogIn = ({ onLogin = () => {} }) => {
 
       if (response.ok) {
         const token = data.status.token;
-        await AsyncStorage.setItem('token', token);
-        await AsyncStorage.setItem('user', JSON.stringify(data.status.data.user));
+        const user = JSON.stringify(data.status.data.user);
+        await login(token, user);
         if (token) {
           onLogin(token); 
           setSuccessMessage('Login successful!');
