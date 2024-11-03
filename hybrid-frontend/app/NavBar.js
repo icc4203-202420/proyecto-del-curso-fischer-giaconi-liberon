@@ -8,6 +8,9 @@ import Home from './Home';
 import Beer from './Beer';
 import LogIn from './LogIn';
 import UserProfile from './UserProfile';
+import { SearchBar } from 'react-native-screens';
+import UserSearch from './UserSearchPage';
+import Bars from './Bar'
 
 const Tab = createBottomTabNavigator();
 
@@ -80,6 +83,26 @@ export default function NavigationBar() {
           tabBarLabel: 'Beers',
           tabBarIcon: ({ color, size }) => (
             <Icon name="beer" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Bars"
+        component={Bars}
+        options={{
+          tabBarLabel: 'Bars',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="glass-flute" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={UserSearch}
+        options={{
+          tabBarLabel: 'Search Users',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="magnify" size={size} color={color} />
           ),
         }}
       />
