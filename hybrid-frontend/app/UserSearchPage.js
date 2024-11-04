@@ -3,6 +3,7 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, S
 import { Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { API_URL } from '@env';
+import * as SecureStore from 'expo-secure-store';
 
 const UserSearch = () => {
     const [users, setUsers] = useState([]);
@@ -10,8 +11,10 @@ const UserSearch = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const navigation = useNavigation();
+    const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
+        setCurrentUser(JSON.parse(SecureStore.getItem('user')));
         const fetchUsers = async () => {
             try {
                 const response = await fetch(`${API_URL}/api/v1/users`);
@@ -31,7 +34,13 @@ const UserSearch = () => {
     }, []);
 
     const handleUserClick = (userId) => {
-        navigation.navigate('UserDetail', { userId: userId });
+        console.log(currentUser.id);
+        console.log(userId);
+        if (currentUser.id === userId) {
+            navigation.navigate('UserProfile');
+        } else {
+            navigation.navigate('UserDetail', { userId: userId });
+        }
     };
 
     const filtered = filteredUsers.filter(user =>

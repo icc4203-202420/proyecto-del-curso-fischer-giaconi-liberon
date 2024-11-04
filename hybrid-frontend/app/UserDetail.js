@@ -16,6 +16,7 @@ export default function UserDetial({ route }) {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [friendship, setFriendship] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState([]);
+  const [newFriendship, setNewFriendship] = useState(false);
 
   const getCurrentUser = async () => {
     const auxUser = await SecureStore.getItemAsync('user');
@@ -58,7 +59,7 @@ export default function UserDetial({ route }) {
     };
 
     fetchUser();
-  }, []);
+  }, [newFriendship]);
 
     const setQueryEvent = (event) => {
         setSelectedEvent([event]);
@@ -73,8 +74,8 @@ export default function UserDetial({ route }) {
     const handleFriendship = async () => {
         try {
             const token = await SecureStore.getItemAsync('token');
-			const current_user = JSON.parse(await SecureStore.getItemAsync('user'));
-            await axios.post(
+			      const current_user = JSON.parse(await SecureStore.getItemAsync('user'));
+            const resposne = await axios.post(
                 `${API_URL}/api/v1/users/${current_user.id}/friendships`, {
                     friendship: {
                         friend_id: user.id,
@@ -88,7 +89,7 @@ export default function UserDetial({ route }) {
                     },
                 }
             );
-			await axios.post(
+			      await axios.post(
                 `${API_URL}/api/v1/users/${user.id}/friendships`, {
                     friendship: {
                         friend_id: current_user.id,
@@ -102,8 +103,7 @@ export default function UserDetial({ route }) {
                     },
                 }
             );
-			console.log(response);
-            setFriendship(response.data);
+            setNewFriendship(true);
         } catch (error) {
             console.error('Error creando la amistad:', error);
         }
