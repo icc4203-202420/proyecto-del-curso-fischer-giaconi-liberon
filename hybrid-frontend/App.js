@@ -8,6 +8,7 @@ import BeerDetail from './app/BeerDetail';
 import BeerReview from './app/BeerReview';
 import NavigationBar from './app/NavBar';
 import BeerTabs from './app/BeerTabs';
+import EventTabs from './app/EventTabs';
 import SignUp from './app/SignUp';
 import LogIn from './app/LogIn';
 import SearchUserBar from './app/UserSearch';
@@ -16,6 +17,8 @@ import Bars from './app/Bar';
 import Attendance from './app/Attendance';
 import AddAttendance from './app/AddAttendance';
 import UserDetail from './app/UserDetail';
+import EventDetail from './app/EventDetail';
+import EventGallery from './app/EventGallery';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +40,9 @@ export default function App() {
           <Stack.Screen name="Bar" component={Bars} />
           <Stack.Screen name="Attendance" component={Attendance} />
           <Stack.Screen name="AddAttendance" component={AddAttendance} />
+          <Stack.Screen name="EventDetail" component={EventDetail} />
+          <Stack.Screen name="EventGallery" component={EventGallery} />
+          <Stack.Screen name="EventTabs" component={EventTabs} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>

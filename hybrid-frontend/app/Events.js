@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Dimensions, StyleSheet, Text, TouchableOpacity, FlatList, Image, TextInput, Button, Modal, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { API_URL } from '@env';
-import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
     const [bar, setBar] = useState(null);
-    const [openUploadModal, setOpenUploadModal] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [description, setDescription] = useState('');
-    const [availableUsers, setAvailableUsers] = useState([]);
-    const [searchText, setSearchText] = useState('');
-    const [taggedUsers, setTaggedUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
     const route = useRoute();
     const navigation = useNavigation();
     const { bar_id } = route.params;
@@ -33,9 +22,9 @@ const Events = () => {
                 const response = await axios.get(`${API_URL}/api/v1/bars/${bar_id}/events`);
                 setEvents(response.data.events);
                 setBar(response.data.bar);
-                if (response.data.events.length > 0) {
-                    fetchEventPictures(response.data.events[0].id);
-                };
+                // if (response.data.events.length > 0) {
+                //     fetchEventPictures(response.data.events[0].id);
+                // };
             } catch (error) {
                 console.error('Error fetching events:', error);
                 Alert.alert('Error', 'No se pudieron cargar los eventos.');
@@ -44,19 +33,6 @@ const Events = () => {
 
         fetchEvents();
     }, [bar_id]);
-
-    const fetchAvailableUsers = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/api/v1/users`);
-            setAvailableUsers(response.data);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchAvailableUsers();
-    }, []);
 
     const fetchEventPictures = async (eventId) => {
         try {
@@ -67,98 +43,8 @@ const Events = () => {
         }
     };
 
-    const handleSearch = (text) => {
-        setSearchText(text);
-        const filtered = availableUsers.filter(user => 
-            user.handle.toLowerCase().includes(text.toLowerCase())
-        );
-        setFilteredUsers(filtered);
-    };
-
-    const addTaggedUser = (user) => {
-        if (!taggedUsers.some(taggedUser => taggedUser.id === user.id)) {
-            setTaggedUsers([...taggedUsers, user]);
-        }
-        setSearchText('');
-        setFilteredUsers([]);
-    };
-
-    const base64ToBlob = async (base64, contentType = 'image/jpeg') => {
-        const byteCharacters = atob(base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: contentType })
-        // console.log(blob);
-        return blob;
-    };
-
-    const uriToBlob = async (uri) => {
-        const response = await fetch(uri);
-        const auxBlob = await response.blob();
-        const blob = auxBlob;
-        // console.log(blob);
-        return blob;
-    };
-
-    const removeTaggedUser = (userId) => {
-        setTaggedUsers(taggedUsers.filter(user => user.id !== userId));
-    };
-
-    const handleImageUpload = async (eventId) => {
-        if (!selectedImage) {
-            Alert.alert('Error', 'Por favor, selecciona una imagen antes de cargarla.');
-            return;
-        }
-    
-        const currentUser = JSON.parse(await SecureStore.getItemAsync('user'));
-        const formData = new FormData();
-    
-        // Asegúrate de que el URI esté correctamente formateado
-        formData.append('event_picture[image]', {
-            uri: selectedImage,
-            name: 'image.jpg', // Asegúrate de usar un nombre de archivo correcto
-            type: 'image/jpeg', // El tipo de contenido que estás subiendo
-        });
-        formData.append('event_picture[event_id]', eventId);
-        formData.append('event_picture[user_id]', currentUser.id);
-        formData.append('event_picture[description]', description);
-    
-        // Adjuntar usuarios etiquetados
-        taggedUsers.forEach((user) => {
-            formData.append('event_picture[tagged_users][]', user.id);
-        });
-    
-        try {
-            const response = await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            Alert.alert('Imagen cargada exitosamente', `Imagen ID: ${response.data.id}`);
-            setOpenUploadModal(false);
-            setSelectedImage(null);
-            setDescription('');
-            setTaggedUsers([]);
-        } catch (error) {
-            console.error('Error uploading image:', error.response.data);
-            Alert.alert('Error', 'No se pudo cargar la imagen. Intenta nuevamente.');
-        }
-    };
-
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            setSelectedImage(result.assets[0].uri);
-        }
+    const handleEventPress = ( event_id ) => {
+        navigation.navigate("EventTabs", { event_id });
     };
 
     return (
@@ -174,64 +60,16 @@ const Events = () => {
                 data={events}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.eventCard}>
-                        <Text style={styles.eventName}>{item.name}</Text>
-                        <Text style={styles.eventDate}>{new Date(item.date).toLocaleString()}</Text>
-                        <Button title="Subir Imagen" onPress={() => setOpenUploadModal(true)} />
-                    </View>
+                    <TouchableOpacity
+                        onPress={() => handleEventPress(item.id)}
+                    >
+                        <View style={styles.eventCard}>
+                            <Text style={styles.eventName}>{item.name}</Text>
+                            <Text style={styles.eventDate}>{new Date(item.date).toLocaleString()}</Text>
+                        </View>
+                    </TouchableOpacity>
                 )}
             />
-
-            <Modal
-                visible={openUploadModal}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setOpenUploadModal(false)}
-            >
-                <View style={styles.modalContainer}>
-                    <TextInput
-                        style={styles.descriptionInput}
-                        placeholder="Descripción"
-                        value={description}
-                        onChangeText={setDescription}
-                    />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Buscar usuario para etiquetar"
-                        value={searchText}
-                        onChangeText={handleSearch}
-                    />
-                    {filteredUsers.length > 0 && (
-                        <View style={styles.dropdown}>
-                            {filteredUsers.map((user) => (
-                                <TouchableOpacity
-                                    key={user.id}
-                                    style={styles.dropdownItem}
-                                    onPress={() => addTaggedUser(user)}
-                                >
-                                    <Text>{user.handle}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    )}
-                    <View style={styles.taggedUsersContainer}>
-                        {taggedUsers.map((user) => (
-                            <View key={user.id} style={styles.taggedUser}>
-                                <Text>{user.handle}</Text>
-                                <TouchableOpacity onPress={() => removeTaggedUser(user.id)}>
-                                    <MaterialCommunityIcons name="close" size={16} color="red" />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-                    </View>
-                    <Button title="Seleccionar Imagen" onPress={pickImage} />
-                    {selectedImage && (
-                        <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
-                    )}
-                    <Button title="Cargar Imagen" onPress={() => handleImageUpload(events[0].id)} />
-                    <Button title="Cerrar" onPress={() => setOpenUploadModal(false)} />
-                </View>
-            </Modal>
         </ScrollView>
     );
 };

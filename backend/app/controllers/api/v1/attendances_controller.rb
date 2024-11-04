@@ -3,13 +3,13 @@ class API::V1::AttendancesController < ApplicationController
     before_action :set_event
     #check in de los users
     def create
-      attendance = Attendance.find_or_initialize_by(user: current_user, event: @event)
-      if attendance.checked_in
-        render json: { message: "Ya has confirmado tu asistencia." }, status: :unprocessable_entity
-      elsif attendance.check_in
-        render json: { message: "Has confirmado tu asistencia." }, status: :ok
+      @attendance = Attendance.create(user: current_user, event: @event, checked_in: true)
+      puts("ATTENDANCE:", @attendance.as_json)
+      if @attendance.save
+        puts("A")
+        render json: { attendance: @attendance.as_json }, status: :ok
       else
-        render json: { errors: attendance.errors.full_messages }, status: :unprocessable_entity
+        render json: { error: attendance.errors.full_messages }, status: :unprocessable_entity
       end
     end
 
