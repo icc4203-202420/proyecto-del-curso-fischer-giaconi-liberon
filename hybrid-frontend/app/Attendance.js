@@ -63,6 +63,20 @@ const Attendance = ({ isCheckedIn }) => {
                     },
                 }
             );
+            await axios.post(
+                `${API_URL}/api/v1/users/${current_user.id}/friendships`, {
+                    friendship: {
+                        friend_id: user_id,
+                        bar_id: bar_id,
+                        event_id: event_id,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
             Alert.alert('Éxito', 'Solicitud de amistad enviada.');
         } catch (error) {
             console.error('Error al enviar solicitud de amistad:', error);
