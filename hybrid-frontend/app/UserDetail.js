@@ -44,6 +44,7 @@ export default function UserDetial({ route }) {
                     current_user: tempUser.id,
                   }
             });
+		// console.log(response.data)
         if (response.data.friendship) {
             setFriendship(response.data.friendship);
             setEvent(response.data.event);
@@ -57,7 +58,7 @@ export default function UserDetial({ route }) {
     };
 
     fetchUser();
-  }, [friendship]);
+  }, []);
 
     const setQueryEvent = (event) => {
         setSelectedEvent([event]);
@@ -72,19 +73,36 @@ export default function UserDetial({ route }) {
     const handleFriendship = async () => {
         try {
             const token = await SecureStore.getItemAsync('token');
-            const response = await axios.post(`${API_URL}/api/v1/users/${user.id}/friendships`,
-                {
+			const current_user = JSON.parse(await SecureStore.getItemAsync('user'));
+            await axios.post(
+                `${API_URL}/api/v1/users/${current_user.id}/friendships`, {
                     friendship: {
-                        friend_id: currentUser.id,
-                        event_id: selectedEvent[0].id
-                    }
+                        friend_id: user.id,
+                        bar_id: selectedEvent[0].bar_id,
+                        event_id: selectedEvent[0].event_id,
+                    },
                 },
                 {
                     headers: {
-                        Authorization: "Bearer " + token
-                    }
+                        Authorization: "Bearer " + token,
+                    },
                 }
-            )
+            );
+			await axios.post(
+                `${API_URL}/api/v1/users/${user.id}/friendships`, {
+                    friendship: {
+                        friend_id: current_user.id,
+                        bar_id: selectedEvent[0].bar_id,
+                        event_id: selectedEvent[0].event_id,
+                    },
+                },
+                {
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
+			console.log(response);
             setFriendship(response.data);
         } catch (error) {
             console.error('Error creando la amistad:', error);
