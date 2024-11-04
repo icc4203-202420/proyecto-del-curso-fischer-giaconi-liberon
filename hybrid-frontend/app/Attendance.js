@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Button } fr
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { API_URL } from '@env';
+import * as SecureStore from 'expo-secure-store';
 
-const Attendance = () => {
+const Attendance = ({ isCheckedIn }) => {
     const [attendances, setAttendances] = useState([]);
     const [currentUser, setCurrentUser] = useState();
     const [error, setError] = useState('');
@@ -13,17 +14,17 @@ const Attendance = () => {
     const bar_id = route.params.bar_id;
 
     useEffect(() => {
-        setCurrentUser(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null);
+        setCurrentUser(SecureStore.getItem('user') ? JSON.parse(SecureStore.getItem('user')) : null);
         
         const fetchAttendances = async () => {
-            const token = localStorage.getItem('token');
+            const token = await SecureStore.getItemAsync('token');
 
             try {
                 const response = await axios.get(
                     `${API_URL}/api/v1/bars/${bar_id}/events/${event_id}/attendances`,
                     {
                         headers: {
-                            Authorization: token,
+                            Authorization: "Bearer " + token,
                         },
                     }
                 );
@@ -40,12 +41,12 @@ const Attendance = () => {
         if (event_id) {
             fetchAttendances();
         }
-    }, [bar_id, event_id]);
+    }, [bar_id, event_id, isCheckedIn]);
 
     // Función para manejar solicitud de amistad
     const handleAddFriend = async (user_id) => {
-        const token = localStorage.getItem('token');
-        const current_user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+        const token = await SecureStore.getItemAsync('token');
+        const current_user = await SecureStore.getItemAsync('user') ? JSON.parse(await SecureStore.getItemAsync('user')) : null;
 
         try {
             await axios.post(
@@ -58,7 +59,7 @@ const Attendance = () => {
                 },
                 {
                     headers: {
-                        Authorization: token,
+                        Authorization: "Bearer " + token,
                     },
                 }
             );

@@ -15,12 +15,12 @@ class API::V1::EventsController < ApplicationController
 
     def show
         if @event.flyer.attached?
-            render json: @event.as_json.merge({
+            render json: { event: @event.as_json.merge({
                 image_url: url_for(@event.image),
-                thumbnail_url: url_for(@event.thumbnail)}),
+                thumbnail_url: url_for(@event.thumbnail)}), bar: @bar.as_json },
                 status: :ok
         else
-            render json: { event: @event.as_json }, status: :ok
+            render json: { event: @event.as_json, bar: @event.bar.as_json }, status: :ok
         end
     end
 

@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Button } from 'react-native';
 
-const AddAttendance = ({ bar_id, event_id, onCheckIn }) => {
+import * as SecureStore from 'expo-secure-store';
+import { API_URL } from '@env';
+
+const AddAttendance = ({ bar_id, event_id, isCheckedIn, setIsCheckedIn }) => {
     const [isCheckingIn, setIsCheckingIn] = useState(false);
-    const [hasCheckedIn, setHasCheckedIn] = useState(false);
+    // const [hasCheckedIn, setHasCheckedIn] = useState(false);
     const [error, setError] = useState('');
 
     const handleCheckIn = async () => {
         setIsCheckingIn(true);
-        const token = localStorage.getItem('token');
+        const token = await SecureStore.getItemAsync('token');
 
         try {
             const response = await axios.post(
@@ -17,12 +20,11 @@ const AddAttendance = ({ bar_id, event_id, onCheckIn }) => {
                 {},
                 {
                     headers: {
-                        Authorization: token,
+                        Authorization: "Bearer " + token,
                     },
                 }
             );
-            setHasCheckedIn(true);
-            onCheckIn(response.data.attendance);
+            setIsCheckedIn(true);
         } catch (error) {
             console.error("Error checking in:", error);
             setError('No se pudo registrar. Por favor, inténtalo de nuevo.');
