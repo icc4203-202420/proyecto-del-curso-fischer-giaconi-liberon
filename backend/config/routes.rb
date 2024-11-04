@@ -45,10 +45,15 @@ Rails.application.routes.draw do
       resources :event_pictures, only: [:create, :index]
       resources :events do
         get 'pictures', to: 'event_pictures#index'
+
+        # Añade aquí la ruta para generar el video
+        member do
+          get :video_url
+          post :generate_video
+        end
       end
 
       resources :reviews, only: [:index, :show, :create, :update, :destroy]
     end
   end
-
 end

@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Video } from 'expo-av';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -20,6 +21,9 @@ const Events = () => {
     const route = useRoute();
     const navigation = useNavigation();
     const { bar_id } = route.params;
+    const [selectedEventId, setSelectedEventId] = useState(null);
+    const [videoUri, setVideoUri] = useState(null);
+    
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -82,26 +86,6 @@ const Events = () => {
         setFilteredUsers([]);
     };
 
-    const base64ToBlob = async (base64, contentType = 'image/jpeg') => {
-        const byteCharacters = atob(base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: contentType })
-        // console.log(blob);
-        return blob;
-    };
-
-    const uriToBlob = async (uri) => {
-        const response = await fetch(uri);
-        const auxBlob = await response.blob();
-        const blob = auxBlob;
-        // console.log(blob);
-        return blob;
-    };
-
     const removeTaggedUser = (userId) => {
         setTaggedUsers(taggedUsers.filter(user => user.id !== userId));
     };
@@ -147,58 +131,60 @@ const Events = () => {
         }
     };
 
-    // const handleImageUpload = async (eventId) => {
-    //     if (!selectedImage) {
-    //         Alert.alert('Error', 'Por favor, selecciona una imagen antes de cargarla.');
-    //         return;
-    //     }
+    const generateVideo = async (eventId) => {
+        try {
+            // Start the video generation
+            await axios.post(`${API_URL}/api/v1/events/${eventId}/generate_video`);
+            Alert.alert('Video is being generated, please wait a moment...');
     
-    //     const currentUser = JSON.parse(await AsyncStorage.getItem('user'));
-    //     let imageBlob;
-    
-    //     // Identificar si es base64 o un URI de archivo
-    //     if (selectedImage.startsWith('data:image')) {
-    //         // Eliminar el prefijo base64 `data:image/jpeg;base64,`
-    //         const base64Image = selectedImage.replace(/^data:image\/\w+;base64,/, "");
-    //         // Convertir base64 a Blob
-    //         imageBlob = await base64ToBlob(base64Image, 'image/jpeg');
-    //     } else {
-    //         // Convertir URI de archivo a Blob
-    //         imageBlob = await uriToBlob(selectedImage);
-    //     }
+            // Short delay to give time for the video to be processed on the server
+            setTimeout(async () => {
+                // Check if the video file now exists
+                try {
+                    const videoURL = `${API_URL}/videos/event_${eventId}.mp4`;
+                    const response = await axios.head(videoURL);
+                    
+                    if (response.status === 200) {
+                        // Video exists, update state to display it
+                        setVideoUri(videoURL);
+                        setSelectedEventId(eventId);
+                        Alert.alert('Video generated successfully!');
+                    } else {
+                        Alert.alert('Video generation in progress, please try again shortly.');
+                    }
+                } catch (error) {
+                    console.error('Error checking video existence:', error);
+                    Alert.alert('Error', 'The video is still processing. Please try again in a moment.');
+                }
+            }, 3000); // Adjust this delay as needed
+        } catch (error) {
+            console.error('Error generating video:', error);
+            Alert.alert('Error', 'Could not generate the video. Please try again.');
+        }
+    };
 
-    //     console.log(imageBlob);
-    
-    //     const formData = new FormData();
-        
-    //     // Adjuntar el archivo Blob al FormData
-    //     formData.append('event_picture[image]', imageBlob);
-    //     formData.append('event_picture[event_id]', eventId);
-    //     formData.append('event_picture[user_id]', currentUser.id);
-    //     formData.append('event_picture[description]', description);
-        
-    //     taggedUsers.forEach((user) => {
-    //         formData.append('event_picture[tagged_users][]', user.id);
-    //     });
-    
-    //     try {
+    const handleVideoPress = (eventId) => {
+        setSelectedEventId(eventId);
+        setVideoUri(`${API_URL}/videos/event_${eventId}.mp4`); // Actualiza la URI del video cuando presionas
+    };
 
-    //         await axios.post(`${API_URL}/api/v1/event_pictures`, formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //             },
-    //         });
-    //         Alert.alert('Imagen cargada exitosamente');
-    //         setOpenUploadModal(false);
-    //         setSelectedImage(null);
-    //         setDescription('');
-    //         setTaggedUsers([]);
-    //     } catch (error) {
-    //         console.error('Error uploading image:', error);
-    //         Alert.alert('Error', 'No se pudo cargar la imagen.');
-    //     }
-    // };
-
+    const checkVideoExistence = async (eventId) => {
+        try {
+            const response = await axios.head(`${API_URL}/videos/event_${eventId}.mp4`);
+            if (response.status === 200) {
+                // Video exists, set the URI
+                setVideoUri((prev) => ({ ...prev, [eventId]: `${API_URL}/videos/event_${eventId}.mp4` }));
+                console.log('YESSSSSSSSSSS')
+            } else {
+                // Video does not exist, handle accordingly (if needed)
+                setVideoUri((prev) => ({ ...prev, [eventId]: null }));
+            }
+        } catch (error) {
+            console.log('Video not found:', error);
+            setVideoUri((prev) => ({ ...prev, [eventId]: null })); // Set to null if error occurs
+        }
+    };
+    
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -220,7 +206,6 @@ const Events = () => {
                 </TouchableOpacity>
                 {bar && <Text style={styles.title}>{bar.name}</Text>}
             </View>
-
             <FlatList
                 data={events}
                 keyExtractor={(item) => item.id.toString()}
@@ -228,7 +213,27 @@ const Events = () => {
                     <View style={styles.eventCard}>
                         <Text style={styles.eventName}>{item.name}</Text>
                         <Text style={styles.eventDate}>{new Date(item.date).toLocaleString()}</Text>
-                        <Button title="Subir Imagen" onPress={() => setOpenUploadModal(true)} />
+
+                        <Button title="Upload Image" onPress={() => setOpenUploadModal(true)} color="#c0874f" />
+                        <Button title="Generate Video" onPress={() => generateVideo(item.id)} color="#c0874f" />
+
+                        {videoUri && selectedEventId === item.id && (
+                            <View style={styles.videoContainer}>
+                                <Text style={styles.videoTitle}>Event Video</Text>
+                                <Video
+                                    source={{ uri: videoUri }}
+                                    style={styles.video}
+                                    useNativeControls
+                                    resizeMode="contain"
+                                    isLooping
+                                    shouldPlay={true}  // This prop makes the video autoplay
+                                    onError={(error) => {
+                                        console.error("Error loading video:", error);
+                                        Alert.alert('Error loading video. Please try again.');
+                                    }}
+                                />
+                            </View>
+                        )}
                     </View>
                 )}
             />
@@ -275,12 +280,12 @@ const Events = () => {
                             </View>
                         ))}
                     </View>
-                    <Button title="Seleccionar Imagen" onPress={pickImage} />
+                    <Button title="Seleccionar Imagen" onPress={pickImage} color="#c0874f" />
                     {selectedImage && (
                         <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
                     )}
-                    <Button title="Cargar Imagen" onPress={() => handleImageUpload(events[0].id)} />
-                    <Button title="Cerrar" onPress={() => setOpenUploadModal(false)} />
+                    <Button title="Cargar Imagen" onPress={() => handleImageUpload(selectedEventId)} color="#c0874f" />
+                    <Button title="Cerrar" onPress={() => setOpenUploadModal(false)} color="#c0874f" />
                 </View>
             </Modal>
         </ScrollView>
@@ -290,85 +295,105 @@ const Events = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: '#ffe5b4',
+        padding: 20,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 10,
-        backgroundColor: '#c0874f',
+        marginBottom: 20,
     },
     backButton: {
-        padding: 10,
-        backgroundColor: '#fff2e5',
-        borderRadius: 5,
+        marginRight: 10,
     },
     backButtonText: {
-        color: '#c0874f',
+        color: '#6e4c3e',
         fontSize: 16,
     },
     title: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#fff',
-        flex: 1,
-        textAlign: 'center',
+        color: '#6e4c3e',
     },
     eventCard: {
-        backgroundColor: '#fff2e5',
-        padding: 16,
-        marginBottom: 16,
+        backgroundColor: '#ffffff',
         borderRadius: 10,
+        padding: 15,
+        marginBottom: 15,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.2,
-        shadowRadius: 4,
+        shadowRadius: 1,
+        elevation: 3,
     },
     eventName: {
-        fontSize: 20,
-        color: '#5d3a29',
+        fontSize: 18,
         fontWeight: 'bold',
+        color: '#6e4c3e',
     },
     eventDate: {
         color: '#5d3a29',
+        marginBottom: 10,
+    },
+    videoContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    videoTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#6e4c3e',
+        marginBottom: 10,
+    },
+    video: {
+        width: '100%',
+        height: 200,
     },
     modalContainer: {
         flex: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        padding: 20,
         justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     descriptionInput: {
-        width: '80%',
         borderColor: '#c0874f',
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 5,
         padding: 10,
-        marginBottom: 16,
-        backgroundColor: '#fff',
-        color: '#5d3a29',
+        marginBottom: 10,
+    },
+    searchInput: {
+        borderColor: '#c0874f',
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+    },
+    dropdown: {
+        backgroundColor: '#ffffff',
+        borderRadius: 5,
+        maxHeight: 150,
+        overflow: 'hidden',
+        marginBottom: 10,
+    },
+    dropdownItem: {
+        padding: 10,
+    },
+    taggedUsersContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginBottom: 10,
+    },
+    taggedUser: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10,
     },
     imagePreview: {
-        width: '80%',
-        height: 200,
-        marginVertical: 16,
-    },
-    tagTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginVertical: 10,
-    },
-    userTag: {
-        padding: 10,
-        borderColor: '#c0874f',
-        borderWidth: 1,
-        borderRadius: 8,
-        marginHorizontal: 5,
-    },
-    userTagSelected: {
-        backgroundColor: '#c0874f',
+        width: 100,
+        height: 100,
+        borderRadius: 10,
+        marginBottom: 10,
     },
 });
 

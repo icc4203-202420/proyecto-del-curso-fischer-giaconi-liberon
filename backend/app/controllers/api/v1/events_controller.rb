@@ -53,6 +53,16 @@ class API::V1::EventsController < ApplicationController
         end
     end
 
+    def generate_video
+        @event = Event.find_by(id: params[:id])
+        if @event.nil?
+          render json: { error: 'Evento no encontrado' }, status: :not_found
+          return
+        end
+      
+        GenerateEventVideoJob.perform_later(@event.id)  # Pasa solo el ID
+        render json: { message: 'Video generation started.' }, status: :accepted
+      end
 
     private
     def set_bar
