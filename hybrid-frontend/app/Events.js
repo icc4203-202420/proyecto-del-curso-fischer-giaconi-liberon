@@ -22,9 +22,6 @@ const Events = () => {
                 const response = await axios.get(`${API_URL}/api/v1/bars/${bar_id}/events`);
                 setEvents(response.data.events);
                 setBar(response.data.bar);
-                // if (response.data.events.length > 0) {
-                //     fetchEventPictures(response.data.events[0].id);
-                // };
             } catch (error) {
                 console.error('Error fetching events:', error);
                 Alert.alert('Error', 'No se pudieron cargar los eventos.');

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View, StyleSheet, ScrollView, Text, Alert } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, ScrollView, Text, Alert, Button } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Video } from 'expo-av';
 import { API_URL } from '@env';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
@@ -15,6 +16,7 @@ const EventDetail = ( route ) => {
     const [ loading, setLoading ] = useState(true);
     const [ error, setError ] = useState(null);
     const [ isCheckedIn, setIsCheckedIn] = useState(false);
+    const [videoUri, setVideoUri] = useState(null);
 
     useEffect(() => {
         // console.log(id);
@@ -37,6 +39,42 @@ const EventDetail = ( route ) => {
             setLoading(false);
         }
     }
+
+    const generateVideo = async (eventId) => {
+        try {
+            // Start the video generation
+            await axios.post(`${API_URL}/api/v1/events/${eventId}/generate_video`);
+            Alert.alert('Video is being generated, please wait a moment...');
+            // Short delay to give time for the video to be processed on the server
+            setTimeout(async () => {
+                // Check if the video file now exists
+                try {
+                    const videoURL = `${API_URL}/videos/event_${eventId}.mp4`;
+                    const response = await axios.head(videoURL);
+                    
+                    if (response.status === 200) {
+                        // Video exists, update state to display it
+                        setVideoUri(videoURL);
+                        console.log(videoURL);
+                        Alert.alert('Video generated successfully!');
+                    } else {
+                        Alert.alert('Video generation in progress, please try again shortly.');
+                    }
+                } catch (error) {
+                    console.error('Error checking video existence:', error);
+                    Alert.alert('Error', 'The video is still processing. Please try again in a moment.');
+                }
+            }, 3000); // Adjust this delay as needed
+        } catch (error) {
+            console.error('Error generating video:', error);
+            Alert.alert('Error', 'Could not generate the video. Please try again.');
+        }
+    };
+
+    const handleVideoPress = (eventId) => {
+        // setSelectedEventId(eventId);
+        setVideoUri(`${API_URL}/videos/event_${eventId}.mp4`); // Actualiza la URI del video cuando presionas
+    };
 
     if (loading) {
         return (
@@ -76,6 +114,26 @@ const EventDetail = ( route ) => {
                             <AddAttendance bar_id={bar.id} event_id={event.id} isCheckedIn={isCheckedIn} setIsCheckedIn={setIsCheckedIn}/>
                         )}
                         <Attendance event_id={ id } isCheckedIn={isCheckedIn} />
+                    </View>
+                    <View style={styles.detailBox}>
+                    <Button title="Generate Video" onPress={() => generateVideo(id)} color="#c0874f" />
+                        {videoUri && event.id && (
+                            <View style={styles.videoContainer}>
+                                <Text style={styles.videoTitle}>Event Video</Text>
+                                <Video
+                                    source={{ uri: videoUri }}
+                                    style={styles.video}
+                                    useNativeControls
+                                    resizeMode="contain"
+                                    isLooping
+                                    shouldPlay={true}  // This prop makes the video autoplay
+                                    onError={(error) => {
+                                        console.error("Error loading video:", error);
+                                        Alert.alert('Error loading video. Please try again.');
+                                    }}
+                                />
+                            </View>
+                        )}
                     </View>
                 </>
             ) : (
@@ -154,6 +212,24 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    videoContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+        width: '100%', // Asegura que el contenedor del video ocupe todo el ancho disponible
+    },
+    videoTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#6e4c3e',
+        marginBottom: 10,
+    },
+    video: {
+        width: '100%',      // Ajusta el ancho para que ocupe todo el espacio disponible
+        height: 300,        // Ajusta la altura para que el video sea más visible
+        // maxHeight: 400,     // Límite de altura opcional
+        borderRadius: 10,   // Opcional: redondea las esquinas para una apariencia más estética
+        backgroundColor: '#000', // Fondo negro para mejorar el contraste mientras se carga
     },
 });
 
