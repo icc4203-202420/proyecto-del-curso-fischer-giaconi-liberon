@@ -18,7 +18,7 @@ const Beers = () => {
 
                 if (data.beers) {
                     setBeers(data.beers);
-                    setFilteredBeers(data.beers); // Set initial filtered beers
+                    setFilteredBeers(data.beers);
                 }
             } catch (error) {
                 console.error("Error fetching beers:", error);
@@ -29,11 +29,10 @@ const Beers = () => {
     }, []);
 
     const handlePaperClick = (beerId) => {
-        navigate(`/bars/${beerId}/events`);
+        navigate(`/beers/${beerId}`);
     };
 
     return (
-        
         <Container style={{ paddingTop: '20px', paddingBottom: '20px' }}>
             <SearchBar data={beers} setFilteredData={setFilteredBeers} placeholder="Search beers..." />
             {filteredBeers ? (

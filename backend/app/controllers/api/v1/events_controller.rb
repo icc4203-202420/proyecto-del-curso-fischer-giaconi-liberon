@@ -10,17 +10,17 @@ class API::V1::EventsController < ApplicationController
     def index
         events = @bar.events
         
-        render json: { events: events }, status: :ok 
+        render json: { events: events, bar: @bar }, status: :ok 
     end
 
     def show
         if @event.flyer.attached?
-            render json: @event.as_json.merge({
+            render json: { event: @event.as_json.merge({
                 image_url: url_for(@event.image),
-                thumbnail_url: url_for(@event.thumbnail)}),
+                thumbnail_url: url_for(@event.thumbnail)}), bar: @bar.as_json },
                 status: :ok
         else
-            render json: { event: @event.as_json }, status: :ok
+            render json: { event: @event.as_json, bar: @event.bar.as_json }, status: :ok
         end
     end
 
@@ -53,8 +53,19 @@ class API::V1::EventsController < ApplicationController
         end
     end
 
+    def generate_video
+        @event = Event.find_by(id: params[:id])
+        if @event.nil?
+          render json: { error: 'Evento no encontrado' }, status: :not_found
+          return
+        end
+      
+        GenerateEventVideoJob.perform_later(@event.id)  # Pasa solo el ID
+        render json: { message: 'Video generation started.' }, status: :accepted
+    end
 
     private
+    
     def set_bar
         @bar = Bar.find(params[:bar_id])
         render json: { error: 'Bar not found' }, status: :not_found if @bar.nil?
