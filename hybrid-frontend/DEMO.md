@@ -42,6 +42,12 @@ Para que el proyecto pueda ejecutarse sin problemas hay que hacer algunas config
             Dirección IPv4. . . . . . . . . . . . . . : {ip_de_windows}
             ...
         ```
+3. Instalar ffmpeg en WSL para la generación de slideshows para los eventos:
+    ```bash
+    sudo apt-get install ffmpeg
+    mkdir -p < ruta al repositorio >/proyecto-del-curso-fischer-giaconi-liberon/backend/public/videos/ # Crear la carpeta en caso de que no exista
+    chmod -R 755 < ruta al repositorio >/proyecto-del-curso-fischer-giaconi-liberon/backend/public/videos/ # Habilitar permisos de escritura en la carpeta
+    ```
 ## Configuraciones de backend
 1. Instalar las dependencias:
     ```bash
