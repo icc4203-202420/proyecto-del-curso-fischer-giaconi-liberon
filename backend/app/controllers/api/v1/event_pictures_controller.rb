@@ -27,11 +27,13 @@ class API::V1::EventPicturesController < ApplicationController
         }
       }
     else
-      event_pictures = EventPicture.all()
+      friend_ids = Friendship.where(user_id: params[:user_id]).pluck(:friend_id)
+      event_pictures = EventPicture.where(user_id: friend_ids)
 
       render json: event_pictures.map { |picture|
         {
           id: picture.id,
+          event_id: picture.id,
           description: picture.description,
           created_at: picture.created_at,
           image_url: url_for(picture.image),

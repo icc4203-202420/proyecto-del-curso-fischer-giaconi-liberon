@@ -14,7 +14,10 @@ class API::V1::ReviewsController < ApplicationController
       @reviews = Review.where(beer: @beer)
       render json: { reviews: @reviews }, status: :ok
     else
-      @reviews = Review.all()
+      
+      friend_ids = Friendship.where(user_id: params[:user_id]).pluck(:friend_id)
+      @reviews = Review.where(user_id: friend_ids)
+      # @reviews = Review.all()
       render json: { reviews: @reviews}, status: :ok
     end
   end
