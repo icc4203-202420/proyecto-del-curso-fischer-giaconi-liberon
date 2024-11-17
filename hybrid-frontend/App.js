@@ -21,6 +21,7 @@ import UserDetail from './app/UserDetail';
 import EventDetail from './app/EventDetail';
 import EventGallery from './app/EventGallery';
 import UserProfile from './app/UserProfile';
+import Feed from './app/Feed';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ export default function App() {
             <Stack.Screen name="EventDetail" component={EventDetail} />
             <Stack.Screen name="EventGallery" component={EventGallery} />
             <Stack.Screen name="EventTabs" component={EventTabs} />
+            <Stack.Screen name="Feed" component={Feed} />
           </Stack.Navigator>
         </NavigationContainer>
       </AuthProvider>

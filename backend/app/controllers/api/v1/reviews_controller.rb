@@ -2,14 +2,21 @@ class API::V1::ReviewsController < ApplicationController
   include Authenticable
 
   respond_to :json
-  before_action :set_beer, only: [:index, :create]
-  before_action :set_user, only: [:index, :create]
+  before_action :set_beer, only: [:create]
+  before_action :set_user, only: [:create]
   before_action :set_review, only: [:show, :update, :destroy]
   before_action :verify_jwt_token, only: [:create, :update, :destroy]
 
   def index
-    @reviews = Review.where(beer: @beer)
-    render json: { reviews: @reviews }, status: :ok
+
+    if params[:berr_id]
+      @beer = Beer.find(params[:beer_id])
+      @reviews = Review.where(beer: @beer)
+      render json: { reviews: @reviews }, status: :ok
+    else
+      @reviews = Review.all()
+      render json: { reviews: @reviews}, status: :ok
+    end
   end
 
   def show

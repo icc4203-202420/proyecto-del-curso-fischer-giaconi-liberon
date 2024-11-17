@@ -1,29 +1,55 @@
 class API::V1::EventPicturesController < ApplicationController
   def index
-    event_pictures = EventPicture.where(event_id: params[:event_id])
     
-    Rails.logger.debug "Fetching event pictures for event_id: #{params[:event_id]}"
-    Rails.logger.debug "Event pictures found: #{event_pictures.count}"
+    if params[:event_id]
+      event_pictures = EventPicture.where(event_id: params[:event_id])
+      
+      Rails.logger.debug "Fetching event pictures for event_id: #{params[:event_id]}"
+      Rails.logger.debug "Event pictures found: #{event_pictures.count}"
 
-    render json: event_pictures.map { |picture|
-      {
-        id: picture.id,
-        description: picture.description,
-        image_url: url_for(picture.image),
-        user: {
-          id: picture.user.id,
-          handle: picture.user.handle,
-          name: "#{picture.user.first_name} #{picture.user.last_name}"
-        },
-        tagged_users: picture.tagged_users.map { |tagged_user| 
-          {
-            id: tagged_user.id,
-            handle: tagged_user.handle,
-            name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+      render json: event_pictures.map { |picture|
+        {
+          id: picture.id,
+          description: picture.description,
+          image_url: url_for(picture.image),
+          user: {
+            id: picture.user.id,
+            handle: picture.user.handle,
+            name: "#{picture.user.first_name} #{picture.user.last_name}"
+          },
+          tagged_users: picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
           }
         }
       }
-    }
+    else
+      event_pictures = EventPicture.all()
+
+      render json: event_pictures.map { |picture|
+        {
+          id: picture.id,
+          description: picture.description,
+          created_at: picture.created_at,
+          image_url: url_for(picture.image),
+          user: {
+            id: picture.user.id,
+            handle: picture.user.handle,
+            name: "#{picture.user.first_name} #{picture.user.last_name}"
+          },
+          tagged_users: picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
+          }
+        }
+      }
+    end
   end
   
   def create
