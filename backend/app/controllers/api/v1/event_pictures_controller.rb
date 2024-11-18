@@ -35,7 +35,7 @@ class API::V1::EventPicturesController < ApplicationController
           id: picture.id,
           event_id: picture.id,
           description: picture.description,
-          created_at: picture.created_at,
+          created_at: picture.created_at.strftime('%H:%M'),
           image_url: url_for(picture.image),
           user: {
             id: picture.user.id,
@@ -48,7 +48,10 @@ class API::V1::EventPicturesController < ApplicationController
               handle: tagged_user.handle,
               name: "#{tagged_user.first_name} #{tagged_user.last_name}"
             }
-          }
+          },
+          event: picture.event,
+          bar: picture.event.bar,
+          country: picture.event.bar.address.country,
         }
       }
     end

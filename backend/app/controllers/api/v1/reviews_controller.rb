@@ -9,16 +9,51 @@ class API::V1::ReviewsController < ApplicationController
 
   def index
 
-    if params[:berr_id]
+    if params[:beer_id]
       @beer = Beer.find(params[:beer_id])
       @reviews = Review.where(beer: @beer)
       render json: { reviews: @reviews }, status: :ok
     else
-      
       friend_ids = Friendship.where(user_id: params[:user_id]).pluck(:friend_id)
       @reviews = Review.where(user_id: friend_ids)
-      # @reviews = Review.all()
-      render json: { reviews: @reviews}, status: :ok
+      reviews_with_beers = @reviews.map do |review|
+        {
+          id: review.id,
+          text: review.text,
+          rating: review.rating,
+          created_at: review.created_at.strftime('%H:%M'),
+          user_id: review.user_id,
+          beer_id: review.beer.id,
+          user: {
+            id: review.user.id,
+            first_name: review.user.first_name,
+            last_name: review.user.last_name,
+            handle: review.user.handle
+          },
+          beer: {
+            id: review.beer.id,
+            name: review.beer.name,
+            style: review.beer.style,
+            avg_rating: review.beer.avg_rating
+          },
+          bars: review.beer.bars.map do |bar|
+            {
+              id: bar.id,
+              name: bar.name,
+              latitude: bar.latitude,
+              longitude: bar.longitude,
+              address: {
+                id: bar.address.id,
+                line1: bar.address.line1,
+                line2: bar.address.line2,
+                city: bar.address.city,
+                country: bar.address.country
+              }
+            }
+          end
+        }
+      end
+      render json: { reviews: reviews_with_beers}, status: :ok
     end
   end
 

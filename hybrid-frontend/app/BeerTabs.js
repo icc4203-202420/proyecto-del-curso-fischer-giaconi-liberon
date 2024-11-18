@@ -90,6 +90,7 @@ const BeerTabs = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 35,
     backgroundColor: '#ffe5b4',
   },
   header: {
