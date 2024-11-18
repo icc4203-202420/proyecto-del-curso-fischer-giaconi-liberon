@@ -17,7 +17,7 @@ const Feed = () => {
     try {
       const token = await SecureStore.getItemAsync('token');
       const user = JSON.parse(await SecureStore.getItemAsync('user'));
-      
+
       // Fetch imágenes
       const picturesResponse = await axios.get(`${API_URL}/api/v1/event_pictures?user_id=${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -29,7 +29,6 @@ const Feed = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const reviews = reviewsResponse.data.reviews;
-      console.log(reviews)
 
       // Combinar ambos tipos de posts en una sola lista
       const combinedData = [
@@ -58,19 +57,18 @@ const Feed = () => {
     fetchData();
   };
 
-  const handleImagePress = ( event_id ) => {
-    navigation.navigate("EventTabs", { event_id });
+  const handleImagePress = (event_id) => {
+    navigation.navigate('EventTabs', { event_id });
   };
 
-  const handleReviewPress = ( id ) => {
+  const handleReviewPress = (id) => {
     navigation.navigate('BeerTabs', { id });
-  }
+  };
 
   if (loading && !refreshing) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#c0874f" />
       </View>
     );
   }
@@ -78,7 +76,7 @@ const Feed = () => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text>Error fetching data: {error.message}</Text>
+        <Text style={styles.errorText}>Error fetching data: {error.message}</Text>
       </View>
     );
   }
@@ -86,28 +84,44 @@ const Feed = () => {
   const renderItem = ({ item }) => {
     if (item.type === 'picture') {
       return (
-        <TouchableOpacity
-          style={styles.itemContainer}
-          onPress={ () => handleImagePress(item.event_id) }
-        >
+        <TouchableOpacity style={styles.card} onPress={() => handleImagePress(item.event_id)}>
           <Image source={{ uri: item.image_url }} style={styles.image} />
-          <View style={styles.textContainer}>
-            <Text style={styles.description}>{item.description || 'No description available.'}</Text>
-            <Text style={styles.userName}>By: {item.user?.name || 'Anonymous'}</Text>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{item.created_at}</Text>
+            <Text style={styles.cardDescription}>{item.description || 'No description available.'}</Text>
+            <Text style={styles.cardSubtitle}>By: {item.user.handle || 'Anonymous'}</Text>
+            <Text style={styles.cardSubtitle}>Evento: {item.event.name}</Text>
+            <Text style={styles.cardSubtitle}>Bar: {item.bar.name}</Text>
+            <Text style={styles.cardSubtitle}>Pais: {item.country.name}</Text>
+            <Text style={styles.cardSubtitle}>Usuarios etiquetados:</Text>
+            {item.tagged_users && item.tagged_users.length > 0 ? (
+              item.tagged_users.map((user, index) => (
+                <Text key={index} style={styles.cardDetail}>@{user.handle} </Text>
+              ))
+            ) : (
+              <Text style={styles.cardDetail}>No tagged users.</Text>
+            )}
           </View>
         </TouchableOpacity>
       );
     } else if (item.type === 'review') {
       return (
-        <TouchableOpacity
-          style={styles.itemContainer}
-          onPress={ () => handleReviewPress(item.beer_id) } // Navega a la cerveza
-        >
-          <View style={styles.textContainer}>
-            <Text style={styles.reviewText}>{item.created_at}</Text>
-            <Text style={styles.reviewText}>{item.text}</Text>
-            <Text style={styles.rating}>Rating: {item.rating}</Text>
-            <Text style={styles.userName}>By: User {item.user_id}</Text>
+        <TouchableOpacity style={styles.card} onPress={() => handleReviewPress(item.beer_id)}>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>{item.created_at}</Text>
+            <Text style={styles.cardDescription}>{item.text}</Text>
+            <Text style={styles.cardSubtitle}>Global rating: {item.beer.avg_rating}</Text>
+            <Text style={styles.cardSubtitle}>Rating: {item.rating}</Text>
+            <Text style={styles.cardSubtitle}>By: {item.user.handle}</Text>
+            <Text style={styles.cardDescription}>{item.beer.name}</Text>
+            <Text style={styles.cardHeader}>Bares donde se sirve:</Text>
+            {item.bars && item.bars.length > 0 ? (
+              item.bars.map((bar, index) => (
+                <Text key={index} style={styles.cardDetail}>- {bar.name} ({bar.address.line1}{bar.address.line2}, {bar.address.city}, {bar.address.country.name})</Text>
+              ))
+            ) : (
+              <Text style={styles.cardDetail}>No bars found for this beer.</Text>
+            )}
           </View>
         </TouchableOpacity>
       );
@@ -116,22 +130,27 @@ const Feed = () => {
   };
 
   return (
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => `${item.type}-${item.id}-${index}`}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={['#0000ff']}
-        />
-      }
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => `${item.type}-${item.id}-${index}`}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#c0874f']} />
+        }
+      />
+    </View>
+    
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 50,
+    padding: 16,
+    backgroundColor: '#ffe5b4',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -143,39 +162,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  itemContainer: {
+  errorText: {
+    fontSize: 16,
+    color: '#c0874f',
+  },
+  card: {
     flexDirection: 'row',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#c0874f',
+    borderRadius: 10,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   image: {
     width: 100,
     height: 100,
-    marginRight: 10,
+    marginRight: 16,
+    borderRadius: 8,
   },
-  textContainer: {
+  cardContent: {
     flex: 1,
   },
-  description: {
-    fontSize: 16,
+  cardTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 8,
+    color: '#6e4c3e',
   },
-  userName: {
+  cardDescription: {
     fontSize: 14,
-    color: '#333',
-    marginBottom: 5,
+    color: '#5d3a29',
+    marginBottom: 4,
   },
-  reviewText: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 5,
-  },
-  rating: {
+  cardSubtitle: {
     fontSize: 12,
-    color: '#888',
-    marginBottom: 5,
+    color: '#5d3a29',
+    marginBottom: 4,
+  },
+  cardHeader: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 10,
+  },
+  cardDetail: {
+    fontSize: 12,
+    color: '#555',
+    marginLeft: 10,
   },
 });
 
