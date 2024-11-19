@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useRoute } from '@react-navigation/native';
 import { API_URL } from '@env';
@@ -15,7 +15,7 @@ const Attendance = ({ isCheckedIn }) => {
 
     useEffect(() => {
         setCurrentUser(SecureStore.getItem('user') ? JSON.parse(SecureStore.getItem('user')) : null);
-        
+
         const fetchAttendances = async () => {
             const token = await SecureStore.getItemAsync('token');
 
@@ -87,7 +87,7 @@ const Attendance = ({ isCheckedIn }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Asistencias para el Evento</Text>
-            
+
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
             {attendances.length > 0 ? (
@@ -102,18 +102,19 @@ const Attendance = ({ isCheckedIn }) => {
                                 Registrado: {item.checked_in ? 'Sí' : 'No'}
                             </Text>
                             {currentUser && currentUser.id !== parseInt(item.user_id) && (
-                                <Button
-                                    title="Agregar Amigo"
-                                    color="#C0874F"
+                                <TouchableOpacity
+                                    style={styles.addFriendButton}
                                     onPress={() => handleAddFriend(item.user_id)}
-                                />
+                                >
+                                    <Text style={styles.addFriendButtonText}>Agregar Amigo</Text>
+                                </TouchableOpacity>
                             )}
                         </View>
                     )}
                     keyExtractor={(item) => item.user_id.toString()}
                 />
             ) : (
-                <ActivityIndicator size="large" color="#C0874F" style={styles.loadingIndicator} />
+                <ActivityIndicator size="large" color="#c0874f" style={styles.loadingIndicator} />
             )}
         </View>
     );
@@ -122,36 +123,53 @@ const Attendance = ({ isCheckedIn }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#3A2B2A',
+        backgroundColor: '#fff2e5', // Fondo más claro
         padding: 16,
     },
     title: {
         fontSize: 24,
-        color: '#FFF',
+        color: '#6e4c3e', // Título con color coherente
         textAlign: 'center',
         marginBottom: 16,
     },
     errorText: {
-        color: 'red',
+        color: '#c0874f', // Resaltado
         marginBottom: 8,
         textAlign: 'center',
     },
     card: {
-        backgroundColor: '#593D30',
-        borderRadius: 15,
+        backgroundColor: '#ffdebd', // Fondo blanco para contraste
+        borderRadius: 10,
         padding: 16,
         marginVertical: 8,
-        borderWidth: 2,
-        borderColor: '#C0874F',
+        borderWidth: 1,
+        borderColor: '#c0874f', // Borde de la tarjeta
+        shadowColor: '#000', // Sombra
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
     },
     cardTitle: {
         fontSize: 18,
-        color: '#C0874F',
+        color: '#6e4c3e', // Título
         fontWeight: 'bold',
+        marginBottom: 8,
     },
     cardBody: {
-        color: '#FFF',
+        color: '#5d3a29', // Texto cuerpo
         marginVertical: 8,
+    },
+    addFriendButton: {
+        backgroundColor: '#c0874f', // Fondo del botón
+        borderRadius: 25,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        marginTop: 10,
+        alignItems: 'center', // Centrado del texto
+    },
+    addFriendButtonText: {
+        color: '#fff', // Texto del botón blanco
+        fontWeight: 'bold',
     },
     loadingIndicator: {
         marginTop: 16,

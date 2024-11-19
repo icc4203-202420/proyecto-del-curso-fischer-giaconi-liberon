@@ -56,9 +56,9 @@ const EventTabs = () => {
     const renderTabEvent = props => (
         <TabBar
             {...props}
-            indicatorStyle={styles.indicator}
+            indicatorStyle={[styles.indicator, { backgroundColor: '#c0874f' }]} // Cambiar el color del indicador
             style={styles.tabBar}
-            labelStyle={styles.tabLabel}
+            labelStyle={[styles.tabLabel, { color: '#c0874f' }]} // Cambiar el color del texto de las tabs
         />
     );
 
@@ -116,14 +116,13 @@ const styles = StyleSheet.create({
         textAlign: 'center', 
     },
     tabBar: {
-        backgroundColor: '#c0874f',
+        backgroundColor: '#ffe5b4', // Mantén el fondo de la tabBar en un color claro
     },
     tabLabel: {
         fontWeight: 'bold',
-        color: '#fff',
     },
     indicator: {
-        backgroundColor: '#ffe5b4',
+        backgroundColor: '#c0874f', // Color del indicador
     },
     errorText: {
         color: 'red',
