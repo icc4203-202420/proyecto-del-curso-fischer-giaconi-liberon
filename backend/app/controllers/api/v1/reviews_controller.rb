@@ -21,7 +21,7 @@ class API::V1::ReviewsController < ApplicationController
           id: review.id,
           text: review.text,
           rating: review.rating,
-          created_at: review.created_at.strftime('%H:%M'),
+          created_at: review.created_at,
           user_id: review.user_id,
           beer_id: review.beer.id,
           user: {
@@ -66,9 +66,58 @@ class API::V1::ReviewsController < ApplicationController
   end
 
   def create
-    @review = @user.reviews.build(id: params[:id], rating: params[:review][:rating], text: params[:review][:text], beer_id: @beer.id)
+    @review = @user.reviews.build(
+      id: params[:id], 
+      rating: params[:review][:rating], 
+      text: params[:review][:text], 
+      beer_id: @beer.id
+    )
     @review.user = User.find(params[:user_id])
+  
     if @review.save
+      # Prepara los datos en el mismo formato que en index
+      review_data = {
+        id: @review.id,
+        text: @review.text,
+        rating: @review.rating,
+        created_at: @review.created_at.strftime('%H:%M'),
+        user_id: @review.user_id,
+        beer_id: @review.beer.id,
+        user: {
+          id: @review.user.id,
+          first_name: @review.user.first_name,
+          last_name: @review.user.last_name,
+          handle: @review.user.handle
+        },
+        beer: {
+          id: @review.beer.id,
+          name: @review.beer.name,
+          style: @review.beer.style,
+          avg_rating: @review.beer.avg_rating
+        },
+        bars: @review.beer.bars.map do |bar|
+          {
+            id: bar.id,
+            name: bar.name,
+            latitude: bar.latitude,
+            longitude: bar.longitude,
+            address: {
+              id: bar.address.id,
+              line1: bar.address.line1,
+              line2: bar.address.line2,
+              city: bar.address.city,
+              country: bar.address.country
+            }
+          }
+        end
+      }
+
+      # Envía los datos a través de WebSocket
+      ActionCable.server.broadcast("feed_channel", {
+        type: 'review',
+        review: review_data
+      })
+      
       render json: @review.as_json(include: :user), status: :created, location: api_v1_review_url(@review)
     else
       render json: @review.errors, status: :unprocessable_entity

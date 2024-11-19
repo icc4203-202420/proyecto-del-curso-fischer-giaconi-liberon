@@ -35,7 +35,7 @@ class API::V1::EventPicturesController < ApplicationController
           id: picture.id,
           event_id: picture.id,
           description: picture.description,
-          created_at: picture.created_at.strftime('%H:%M'),
+          created_at: picture.created_at,
           image_url: url_for(picture.image),
           user: {
             id: picture.user.id,
@@ -60,7 +60,6 @@ class API::V1::EventPicturesController < ApplicationController
   def create
     event_picture_params = params.require(:event_picture).permit(:image, :event_id, :user_id, :description, tagged_users: [])
     
-    # Convert tagged user IDs from strings to User instances
     tagged_users = event_picture_params[:tagged_users].map do |user_id|
       User.find(user_id) if user_id.present?
     end.compact
@@ -71,19 +70,40 @@ class API::V1::EventPicturesController < ApplicationController
       user_id: event_picture_params[:user_id],
       description: event_picture_params[:description]
     )
-    
-    # Associate tagged users with the event picture
     event_picture.tagged_users << tagged_users if tagged_users.any?
   
     if event_picture.save
+      event_picture_data = {
+          id: event_picture.id,
+          event_id: event_picture.id,
+          description: event_picture.description,
+          created_at: event_picture.created_at,
+          image_url: url_for(event_picture.image),
+          user: {
+            id: event_picture.user.id,
+            handle: event_picture.user.handle,
+            name: "#{event_picture.user.first_name} #{event_picture.user.last_name}"
+          },
+          tagged_users: event_picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
+          },
+          event: event_picture.event,
+          bar: event_picture.event.bar,
+          country: event_picture.event.bar.address.country,
+      }
+      ActionCable.server.broadcast("feed_channel", {
+        type: 'event_picture',
+        event_picture: event_picture_data
+      })
       render json: event_picture, status: :created
     else
       render json: event_picture.errors, status: :unprocessable_entity
     end
   end
-  
-  
-    
 
   private
 
