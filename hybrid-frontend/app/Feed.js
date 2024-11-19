@@ -1,44 +1,40 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { useNavigation } from '@react-navigation/native'; // Importación para navegación
-import { API_URL } from '@env';
+import { useNavigation } from '@react-navigation/native';
+import { API_URL, WS_URL } from '@env';
 import axios from 'axios';
+import ActionCable from 'react-native-actioncable';
+
+// Crear consumidor único
+const cable = ActionCable.createConsumer(`${WS_URL}/cable`);
 
 const Feed = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('Connecting');
+  const navigation = useNavigation();
 
-  const navigation = useNavigation(); // Hook para manejar navegación
-
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (token, user) => {
     try {
-      const token = await SecureStore.getItemAsync('token');
-      const user = JSON.parse(await SecureStore.getItemAsync('user'));
-
-      // Fetch imágenes
       const picturesResponse = await axios.get(`${API_URL}/api/v1/event_pictures?user_id=${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const pictures = picturesResponse.data;
 
-      // Fetch reviews
       const reviewsResponse = await axios.get(`${API_URL}/api/v1/reviews?user_id=${user.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const reviews = reviewsResponse.data.reviews;
 
-      // Combinar ambos tipos de posts en una sola lista
       const combinedData = [
-        ...pictures.map((pic) => ({ ...pic, type: 'picture' })),
+        ...pictures.map((pic) => ({ ...pic, type: 'event_picture' })),
         ...reviews.map((review) => ({ ...review, type: 'review' })),
       ];
 
-      // Ordenar por fecha de creación (descendente)
       combinedData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
       setData(combinedData);
     } catch (error) {
       setError(error);
@@ -49,12 +45,75 @@ const Feed = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    let subscription;
+
+    const setupCable = async (token, user) => {
+      subscription = cable.subscriptions.create(
+        { channel: 'FeedChannel', user_id: user.id },
+        {
+          connected() {
+            console.log('Connected to ActionCable');
+            setConnectionStatus('Connected');
+          },
+          disconnected() {
+            console.log('Disconnected from ActionCable');
+            setConnectionStatus('Disconnected');
+          },
+          received(newData) {
+            console.log('Received new data:', newData);
+
+            const itemType = newData.review ? 'review' : 'event_picture';
+            const newItem = { ...newData[itemType], type: itemType };
+
+            setData((prevData) => {
+              const exists = prevData.some(
+                (item) => item.id === newItem.id && item.type === newItem.type
+              );
+              if (!exists) {
+                const updatedData = [newItem, ...prevData];
+                return updatedData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+              }
+              return prevData;
+            });
+          },
+        }
+      );
+    };
+
+    const initialize = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('token');
+        const userJSON = await SecureStore.getItemAsync('user');
+
+        if (token && userJSON) {
+          const user = JSON.parse(userJSON);
+          await fetchData(token, user);
+          setupCable(token, user);
+        }
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
+    };
+
+    initialize();
+
+    return () => {
+      if (subscription) {
+        console.log('Unsubscribing from ActionCable');
+        subscription.unsubscribe();
+      }
+    };
   }, [fetchData]);
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    fetchData();
+    const token = await SecureStore.getItemAsync('token');
+    const userJSON = await SecureStore.getItemAsync('user');
+
+    if (token && userJSON) {
+      const user = JSON.parse(userJSON);
+      await fetchData(token, user);
+    }
   };
 
   const handleImagePress = (event_id) => {
@@ -82,9 +141,9 @@ const Feed = () => {
   }
 
   const renderItem = ({ item }) => {
-    if (item.type === 'picture') {
+    if (item.type === 'event_picture') {
       return (
-        <TouchableOpacity style={styles.card} onPress={() => handleImagePress(item.event_id)}>
+        <TouchableOpacity style={styles.card} onPress={() => handleImagePress(item.event.id)}>
           <Image source={{ uri: item.image_url }} style={styles.image} />
           <View style={styles.cardContent}>
             <Text style={styles.cardTitle}>{item.created_at}</Text>
@@ -125,6 +184,7 @@ const Feed = () => {
           </View>
         </TouchableOpacity>
       );
+
     }
     return null;
   };
@@ -135,87 +195,23 @@ const Feed = () => {
         data={data}
         renderItem={renderItem}
         keyExtractor={(item, index) => `${item.type}-${item.id}-${index}`}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#c0874f']} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#c0874f']} />}
       />
     </View>
-    
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 50,
-    padding: 16,
-    backgroundColor: '#ffe5b4',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#c0874f',
-  },
-  card: {
-    flexDirection: 'row',
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#c0874f',
-    borderRadius: 10,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginRight: 16,
-    borderRadius: 8,
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#6e4c3e',
-  },
-  cardDescription: {
-    fontSize: 14,
-    color: '#5d3a29',
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 12,
-    color: '#5d3a29',
-    marginBottom: 4,
-  },
-  cardHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-    marginTop: 10,
-  },
-  cardDetail: {
-    fontSize: 12,
-    color: '#555',
-    marginLeft: 10,
-  },
+  container: { flex: 1, paddingTop: 50, padding: 16, backgroundColor: '#ffe5b4' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  errorText: { fontSize: 16, color: '#c0874f' },
+  card: { flexDirection: 'row', padding: 16, borderWidth: 1, borderColor: '#c0874f', borderRadius: 10, marginBottom: 16, backgroundColor: '#fff' },
+  image: { width: 100, height: 100, marginRight: 16, borderRadius: 8 },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: '#6e4c3e' },
+  cardDescription: { fontSize: 14, color: '#5d3a29', marginBottom: 4 },
+  cardDetail: { fontSize: 12, color: '#7a5e4a' },
 });
 
 export default Feed;

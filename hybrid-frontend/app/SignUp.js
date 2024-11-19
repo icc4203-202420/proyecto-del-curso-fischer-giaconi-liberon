@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, Alert, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Text, Alert, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { API_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
 
@@ -74,7 +74,7 @@ const SignUp = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
 
       {/* Back Button */}
@@ -155,16 +155,17 @@ const SignUp = () => {
       <Text style={styles.loginText} onPress={() => navigation.navigate('LogIn')}>
         Already have an account? Log In
       </Text>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingTop: 150,
-    padding: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     backgroundColor: '#ffe5b4',
   },
   title: {
