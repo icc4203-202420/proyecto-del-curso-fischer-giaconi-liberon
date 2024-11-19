@@ -1,0 +1,113 @@
+class API::V1::EventPicturesController < ApplicationController
+  def index
+    
+    if params[:event_id]
+      event_pictures = EventPicture.where(event_id: params[:event_id])
+      
+      Rails.logger.debug "Fetching event pictures for event_id: #{params[:event_id]}"
+      Rails.logger.debug "Event pictures found: #{event_pictures.count}"
+
+      render json: event_pictures.map { |picture|
+        {
+          id: picture.id,
+          description: picture.description,
+          image_url: url_for(picture.image),
+          user: {
+            id: picture.user.id,
+            handle: picture.user.handle,
+            name: "#{picture.user.first_name} #{picture.user.last_name}"
+          },
+          tagged_users: picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
+          }
+        }
+      }
+    else
+      friend_ids = Friendship.where(user_id: params[:user_id]).pluck(:friend_id)
+      event_pictures = EventPicture.where(user_id: friend_ids)
+
+      render json: event_pictures.map { |picture|
+        {
+          id: picture.id,
+          event_id: picture.id,
+          description: picture.description,
+          created_at: picture.created_at,
+          image_url: url_for(picture.image),
+          user: {
+            id: picture.user.id,
+            handle: picture.user.handle,
+            name: "#{picture.user.first_name} #{picture.user.last_name}"
+          },
+          tagged_users: picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
+          },
+          event: picture.event,
+          bar: picture.event.bar,
+          country: picture.event.bar.address.country,
+        }
+      }
+    end
+  end
+  
+  def create
+    event_picture_params = params.require(:event_picture).permit(:image, :event_id, :user_id, :description, tagged_users: [])
+    
+    tagged_users = event_picture_params[:tagged_users].map do |user_id|
+      User.find(user_id) if user_id.present?
+    end.compact
+  
+    event_picture = EventPicture.new(
+      image: event_picture_params[:image],
+      event_id: event_picture_params[:event_id],
+      user_id: event_picture_params[:user_id],
+      description: event_picture_params[:description]
+    )
+    event_picture.tagged_users << tagged_users if tagged_users.any?
+  
+    if event_picture.save
+      event_picture_data = {
+          id: event_picture.id,
+          event_id: event_picture.id,
+          description: event_picture.description,
+          created_at: event_picture.created_at,
+          image_url: url_for(event_picture.image),
+          user: {
+            id: event_picture.user.id,
+            handle: event_picture.user.handle,
+            name: "#{event_picture.user.first_name} #{event_picture.user.last_name}"
+          },
+          tagged_users: event_picture.tagged_users.map { |tagged_user| 
+            {
+              id: tagged_user.id,
+              handle: tagged_user.handle,
+              name: "#{tagged_user.first_name} #{tagged_user.last_name}"
+            }
+          },
+          event: event_picture.event,
+          bar: event_picture.event.bar,
+          country: event_picture.event.bar.address.country,
+      }
+      ActionCable.server.broadcast("feed_channel", {
+        type: 'event_picture',
+        event_picture: event_picture_data
+      })
+      render json: event_picture, status: :created
+    else
+      render json: event_picture.errors, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def event_picture_params
+    params.require(:event_picture).permit(:image, :event_id, :user_id, :description, tagged_users: [])
+  end
+end

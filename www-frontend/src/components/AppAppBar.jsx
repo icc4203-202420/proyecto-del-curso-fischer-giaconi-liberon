@@ -1,76 +1,253 @@
-import React from 'react';
-import { styled, alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 
-const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  flexShrink: 0,
-  borderRadius: `calc(${theme.shape.borderRadius}px + 8px)`,
-  backdropFilter: 'blur(24px)',
-  border: '1px solid',
-  borderColor: theme.palette.divider,
-  backgroundColor: alpha(theme.palette.background.default, 0.4),
-  boxShadow: theme.shadows[1],
-  padding: '8px 12px',
-}));
+const pages = ['Explore', 'UserSearch', 'Map'];
+const settings = ['Profile', 'Logout'];
 
-export default function AppAppBar() {
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
+
+export default function ResponsiveAppBar() {
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const loggedIn = isAuthenticated();
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.reload();
+  };
+
   return (
-    <AppBar
-      position="fixed"
-      sx={{ boxShadow: 0, bgcolor: 'transparent', backgroundImage: 'none', mt: 10 }}
-    >
-      <Container maxWidth="lg">
-        <StyledToolbar variant="dense" disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-            <Box>
-              <Button
-                component={Link}
-                to="/"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Home
-              </Button>
-              <Button
-                component={Link}
-                to="/explore"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Explore
-              </Button>
-              <Button
-                component={Link}
-                to="/usersearch"
-                variant="text"
-                size="small"
-                sx={{ color: 'white', textTransform: 'none' }}
-              >
-                Users
-              </Button>
-            </Box>
-          </Box>
-          <Box
+    <AppBar position="fixed" sx={{ backgroundColor: '#c0874f' }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
             sx={{
+              mr: 2,
               display: { xs: 'none', md: 'flex' },
-              gap: 1,
-              alignItems: 'center',
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+              '&:hover': {
+                color: '#fff', // Change text color on hover
+              },
             }}
           >
+            BREWBUDDIES
+          </Typography>
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              size="large"
+              aria-label="open navigation"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{ display: { xs: 'block', md: 'none' } }}
+            >
+              {pages.map((page) => (
+                <MenuItem
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
+                >
+                  <Typography textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
+                    {page}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Menu>
           </Box>
-        </StyledToolbar>
+
+          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          <Typography
+            variant="h5"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '.3rem',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+            BREWBUDDIES
+          </Typography>
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {pages.map((page) => (
+              <Button
+                key={page}
+                component={Link}
+                to={`/${page.toLowerCase()}`}
+                onClick={handleCloseNavMenu}
+                sx={{
+                  my: 2,
+                  color: 'white',
+                  display: 'block',
+                  '&:hover': {
+                    backgroundColor: '#d19b72',
+                    color: '#fff',
+                  },
+                }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
+
+          <Box sx={{ flexGrow: 0 }}>
+            {loggedIn ? (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem
+                      key={setting}
+                      onClick={() => {
+                        if (setting === 'Profile') {
+                          handleCloseUserMenu();
+                          window.location.href = `/users/${JSON.parse(localStorage.getItem('user')).id}`;
+                        } else if (setting === 'Logout') {
+                          handleLogout();
+                        } else {
+                          handleCloseUserMenu();
+                        }
+                      }}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#d19b72',
+                          color: '#fff',
+                        },
+                      }}
+                    >
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="text"
+                  size="small"
+                  sx={{
+                    color: 'white',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
+                >
+                  Log In
+                </Button>
+                <Button
+                  component={Link}
+                  to="/signup"
+                  variant="text"
+                  size="small"
+                  sx={{
+                    color: 'white',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#d19b72',
+                      color: '#fff',
+                    },
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </Box>
+        </Toolbar>
       </Container>
     </AppBar>
   );

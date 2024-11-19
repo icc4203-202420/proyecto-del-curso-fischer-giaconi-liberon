@@ -2,6 +2,9 @@ class Review < ApplicationRecord
   belongs_to :user
   belongs_to :beer
 
+  validates :text, presence: true, length: { minimum: 15, too_short: "must have at least %{count} words" }
+  validates :rating, presence: true, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 5 }
+
   after_save :update_beer_rating
   after_destroy :update_beer_rating
 

@@ -45,7 +45,7 @@ const Bars = () => {
                             alignItems="center"
                         >
                             <Avatar
-                                src={bar.image_url} // Replace with the field that contains the image URL
+                                src={bar.image_url}
                                 alt={bar.name}
                                 style={{ marginRight: '16px' }}
                             />

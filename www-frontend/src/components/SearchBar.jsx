@@ -20,11 +20,11 @@ const SearchBar = ({ data, setFilteredData, placeholder }) => {
   return (
     <Box
       sx={{
-        display: 'flex',          // Use flexbox for centering
-        justifyContent: 'center', // Center horizontally
+        display: 'flex',          
+        justifyContent: 'center', 
         width: '100%',
-        maxWidth: 600,             // Maximum width for the search bar
-        mx: 'auto',               // Center the Box horizontally
+        maxWidth: 600,             
+        mx: 'auto',               
         mb: 4,
       }}
     >
@@ -43,9 +43,9 @@ const SearchBar = ({ data, setFilteredData, placeholder }) => {
             '&.Mui-focused fieldset': { borderColor: '#000' },
           },
           '& .MuiInputBase-root': { color: '#000000' },
-          backgroundColor: '#ffffff', // White background
+          backgroundColor: '#ffffff', 
           borderRadius: '16px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Subtle shadow
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)', 
         }}
       />
     </Box>
